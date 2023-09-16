@@ -1,0 +1,9 @@
+#ignore app vendor directory
+app/vendor/
+
+#ignore build directory
+build/
+
+#ignore logs directory
+logs/
+

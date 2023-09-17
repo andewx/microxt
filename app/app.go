@@ -51,7 +51,7 @@ func (app *ElectronApp) Init() error {
 		return sErr
 	}
 
-	var w, err = app.App.NewWindow(common.ProjectRelativePath("dslapp/resources/index.html"), &astilectron.WindowOptions{
+	var w, err = app.App.NewWindow(common.ProjectRelativePath("microxt/app/site/index.html"), &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Height: astikit.IntPtr(1024),
 		Width:  astikit.IntPtr(1280),

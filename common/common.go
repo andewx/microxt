@@ -13,7 +13,7 @@ func GetProjectDir() string {
 	if err != nil {
 		log.Fatalf("Unable to get project working directory")
 	}
-	paths := strings.Split(wd, "/")
+	paths := strings.Split(wd, PATH_SEPARATOR)
 	i := 0
 	j := 0
 	for i = 0; i < len(paths); i++ {
@@ -28,15 +28,15 @@ func GetProjectDir() string {
 			}
 		}
 	}
-	return strings.Join(paths[0:j], "/")
+	return strings.Join(paths[0:j], PATH_SEPARATOR)
 }
 
 func ProjectRelativePath(relative_path string) string {
-	return GetProjectDir() + "/" + relative_path
+	return GetProjectDir() + PATH_SEPARATOR + relative_path
 }
 
 // Linux Cd command
 func Cd(path string) string {
-	paths := strings.Split(path, "/")
-	return strings.Join(paths[0:len(paths)-1], "/")
+	paths := strings.Split(path, PATH_SEPARATOR)
+	return strings.Join(paths[0:len(paths)-1], PATH_SEPARATOR)
 }

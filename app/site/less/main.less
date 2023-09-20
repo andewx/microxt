@@ -1,0 +1,333 @@
+
+@matte-grey: #343633ff;
+@night: #161513ff;
+@matte: #171717;
+@panel:#1c1c1c;
+@divider:#2a2a2b;
+@light: #f4f3eeff;
+@white:#ffffffff;
+@accent-1: #db5461ff;
+@accent-2: #a63446ff;
+@grey: #202020ff;
+@light-grey: rgb(151, 151, 151);
+@stoplight-yellow:#fdB024;
+@green: #2bc131;
+@red: #fb4546;
+@blue: #2962b9;
+@yellow: #f9d423;
+@green: #29c131;
+@link-color: @blue;
+@widget-color:@accent-1;
+
+@bar-color:@night;
+@panel-color:@panel;
+@divider-color:@divider;
+
+//Grid variables
+@fine-grid-columns: 20;
+@content-grid-columns:10;
+@content-grid-gutter:30px;
+
+
+//Main Grid Content Variables
+@ls:15fr; //15%
+@mn:(90-@ls);
+@rg:((100-(@mn + @ls)));
+
+//Less preprocessor for css files
+@link-color: @accent-1;
+@link-hover-color: darken(@link-color, 10%);
+
+@widget-color: @matte;
+@widget-hover-color:darken(@widget-color, 10%);
+
+@standard-button: @matte-grey;
+@standard-button-hover:darken(@matte-grey, 10%);
+
+@color-button:@green;
+@color-button-hover:darken(@green,10%);
+
+@row-highlight-color:@matte-grey;
+@row-item-color:@matte;
+
+
+//Application content
+.container {
+    background-color:@matte;
+    margin: 0 auto;
+    max-width: 1280px;
+    width: 90%;
+}
+
+//Less grid rules
+.grid-main{
+    display:grid;
+    grid-template-columns: @ls @mn @rg;
+    grid-auto-rows:minmax(100px,auto);
+}
+
+.grid-fine{
+    display:grid;
+    grid-template-columns:repeat(1fr, @fine-grid-columns);
+    grid-auto-rows:minmax(100px,auto);
+}
+
+//Panels must be updated to dynamically handle content
+.grid-panels{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-auto-rows:minmax(100px,auto);
+}
+
+.flex-main{
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+
+    .default-main{
+        height:80%;
+        resize:vertical;
+    }
+
+    .horizontal-resizer{
+        cursor:row-resize;
+        height: 2px;
+        font-size:0.8em;
+        text-align:center;
+        background-color: @divider;
+    }
+
+    .horizontal-resizer:hover{
+        background-color: @blue;
+    }
+
+    .sub-main{
+        background-color:@matte;
+        color:@light;
+        resize:vertical;
+    }
+}
+
+
+
+
+
+
+//-------COLOR STYLES-----//
+
+.dark_theme{
+    background-color: @matte;
+    color:#fff;
+}
+
+.light_theme{
+    background-color: @light;
+    color:#000; 
+}
+
+.dark{
+  background-color: @night;
+  color:#fff;
+} 
+.dark-text{
+    color:@matte;
+}
+.night{
+  background-color:@night;
+}
+.night-text{
+  color:@night;
+}
+
+.light{
+  background-color:@light;
+}
+
+.light-text{
+    color:@light;
+}
+
+.accent-1{
+    background-color:@accent-1;
+}
+
+.accent-1-text{
+   color:@accent-1;
+}
+
+.accent-2{
+    background-color:@accent-2;
+}
+
+.accent-2-text{
+    color:@accent-2;
+}
+
+.white{
+  background-color:@white;
+}
+
+.black{
+    background-color:@matte;
+    color:#fff;
+}
+
+.black-text{
+  color:#000;
+}
+
+
+
+//--------LINK STYLES---------//
+
+.header-link{
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 300;
+    text-decoration: none;
+    margin-right: 20px;
+    font-stretch:expanded;
+    font-family: 'Roboto', sans-serif;
+}
+
+.header-link:hover{
+    font-weight:500;
+    text-decoration: none;
+}
+
+
+//--------CONTAINER STYLES---------//
+
+
+body{
+    margin:0;
+    display:flex;
+    min-height:100vh;
+    flex-direction:column;
+    background-color:var(--matte);
+}
+
+main{
+    flex: 0 0 auto;
+}
+
+
+
+.main-view{
+    background-color:@panel;
+    height: 97vh;
+}
+
+#glcanvas{
+    margin: 0 auto;
+    width:100%;
+    height:100%;
+}
+
+.content-view{
+    background-color:@night;
+}
+
+
+//--------ITEM STYLES------------//
+
+.item{
+    cursor:pointer;
+    width:100%;
+    padding: 5px 0px 5px 2em;
+    font-weight:300;
+    background-color:@row-item-color;
+    text-overflow:ellipsis "...";
+    overflow: hidden;
+    white-space:nowrap;
+    @color:@green;
+    .inactive{
+        @color:@grey;
+    }
+    span{
+        padding:0 0.5em 0 2.0em;
+    }
+
+    .subject{
+        display:inline-block;
+        text-align:left;
+    }
+
+    .indicator{
+        color:@matte-grey;
+        display:inline-block;
+        text-align:right;
+        float:right;
+        padding-right:10%;
+    }
+
+}
+
+
+.item:hover{
+    cursor:pointer;
+    background-color:lighten(@row-item-color, 3%);
+}
+
+
+.small{
+    font-size:0.8em;
+    padding:10px 0px;
+}
+
+
+span{
+    padding:5px;
+}
+
+
+
+//-----BAR STYLES-----//
+
+/* Bar Element Styling*/
+.aux-bar{
+    background-color: @night;
+    color:@grey;
+    padding:5px;
+}
+
+.left-sidebar{
+    background-color: @night;
+    color:@light;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+
+    .config{
+        font-size: 1.2em;
+        font-weight: 300;
+        text-align:right;
+        color:@matte-grey;
+    }
+
+    .config span{
+        cursor:pointer;
+    }
+
+    .config span:hover{
+        color:@white;
+        font-weight:600;
+    }
+}
+
+
+.page-footer{
+    background-color:@blue;
+}
+
+
+
+
+
+
+
+
+
+

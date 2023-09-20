@@ -28,8 +28,8 @@ func New() (*ElectronApp, error) {
 	myApp.Port = 8000
 	myApp.App, err = astilectron.New(log.New(os.Stderr, "", 0), astilectron.Options{
 		AppName:            "MicroXT Radar Application",
-		AppIconDefaultPath: common.ProjectRelativePath("microxt/app/vendor/icons/microxt.png"),  // If path is relative, it must be relative to the data directory
-		AppIconDarwinPath:  common.ProjectRelativePath("microxt/app/vendor/icons/microxt.icns"), // Same here
+		AppIconDefaultPath: common.ProjectRelativePath("microxt/app/icons/microxt.png"),  // If path is relative, it must be relative to the data directory
+		AppIconDarwinPath:  common.ProjectRelativePath("microxt/app/icons/microxt.icns"), // Same here
 		BaseDirectoryPath:  common.ProjectRelativePath("microxt/app"),
 		TCPPort:            &myApp.Port,
 	})

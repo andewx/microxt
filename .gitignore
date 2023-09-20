@@ -1,3 +1,5 @@
+*.exe
+
 #ignore app vendor directory
 app/vendor/
 

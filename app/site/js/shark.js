@@ -1,12 +1,13 @@
 /*App Hook -- Class is responsible for evaluating and updating component state and attaching
 components to the DOM*/
-class Shark{
+class Sharp{
     constructor(){
         this.components = [];
         this.list_components = [];
         this.updated = true;
         this.attached = false;
         this.recieve = "";
+        this.proxyEvents = new Map()
     }
 
 
@@ -20,14 +21,14 @@ class Shark{
 
         $.when($.ready).then(function(){
             mApp.render()
-            mApp.setup()
+            mApp.mount()
         })
 
     }
 
-    setup(){
+    mount(){
         for(let i = 0; i < this.list_components.length; i++){
-            this.list_components[i].setup();
+            this.list_components[i].mount();
         }
     }
 
@@ -41,6 +42,21 @@ class Shark{
                 this.components.splice(i,1);
             }
         }
+    }
+
+
+    registerProxy(proxy_event){
+        let key = `${proxy_event.event}:${proxy_event.proxy}`
+        this.proxyEvents.set(key, proxy_event.component)
+    }
+
+
+    proxy(key){
+        return this.proxyEvents.get(key)
+    }
+
+    deleteProxyEvent(key){
+        this.proxyEvents.delete(key)
     }
 
     render(){
@@ -65,11 +81,18 @@ class Shark{
     }
 }
 
+class ProxyEvent{
+    constructor(component, event_type, proxy_id){
+        this.component = component
+        this.event = event_type
+        this.proxy = proxy_id
+    }
+}
+
 class Binding{
-    constructor(){
-        this.key = "";
-        this.component = "";
-        this.event = function(){}
+    constructor(key, event){
+        this.key = key
+        this.event = event
     }
 }
 
@@ -86,7 +109,7 @@ class KComponent{
         this.hidden = false;
     }
 
-    setup(){
+    mount(){
         for(let i = 0; i < this.bindings.length; i++){  
             let item = this.bindings[i];
             $(`#${this.id}`).on(item.key, item.event);
@@ -154,4 +177,4 @@ function stringify(obj){
 }
 
 
-var mApp = new Shark();
+var mApp = new Sharp(); //global - sharp

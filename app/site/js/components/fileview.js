@@ -23,25 +23,22 @@ class Folder extends KComponent{
         }];
     }
 
-     setup(){
+     mount(){
 
-       let binding = new Binding();
-        binding.key = "click";
-        binding.id = this.id;
-        binding.event = function(event){
-            //find the target component and update its children
-            let component = mApp.getComponentById(event.currentTarget.id);
-            console.log(`clicked: ${event.target.id}`)
-            if(component !=null){
-                $(`#${event.currentTarget.id} > span`).toggleClass("bi-chevron-right bi-chevron-down")
-                component.children.forEach(item => $(`#${item.id}`).toggle());
-            }else{
-                console.log(`component not found: ${event.target.id}`)
-            }
+       let binding = new Binding("click", function(event){
+        //find the target component and update its children
+        let component = mApp.getComponentById(event.currentTarget.id);
+        console.log(`clicked: ${event.target.id}`)
+        if(component !=null){
+            $(`#${event.currentTarget.id} > span`).toggleClass("bi-chevron-right bi-chevron-down")
+            component.children.forEach(item => $(`#${item.id}`).toggle());
+        }else{
+            console.log(`component not found: ${event.target.id}`)
         }
-
+        });
+       
         this.bindings = [binding]
-        super.setup();
+        super.mount();
 
     }
 
@@ -65,16 +62,14 @@ class File extends KComponent{
         this.updated = true;
     }
 
-    setup(){
+    mount(){
         
-       let binding = new Binding();
-        binding.key = "click";
-        binding.event = function(event){
+       let binding = new Binding( "click", function(event){
             console.log(`clicked: ${event.target.id}`)
-        }
-        this.bindings.push(binding);
+        })
 
-        super.setup();
+        this.bindings.push(binding);
+        super.mount();
 
     }
 

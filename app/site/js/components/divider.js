@@ -1,4 +1,3 @@
-
 class Divider extends KComponent{  
     constructor(count, name){
         super()
@@ -8,47 +7,43 @@ class Divider extends KComponent{
         this.id = name+this.count;
         this.hidden = true;
         this.updated = true;
-        this.currentY = 0;
-
+        this.mouseIsDown =false;
     }
 
-    setup(){
-        
-       let binding = new Binding();
-        binding.key = "mousedown";
-        binding.event = function(event){
-            //bind dynamic handlers to mouse move and mouse up with the window
-            //this will allow the user to drag the divider and resize the panes
-           let component = mApp.getComponentById(event.target.id);
-            component.currentY = event.pageY;
-
-                let resizeWindow = function(event){
-                    let h = component.currentY - event.pageY;
-                    let y = $(`#main`).height()
-                    component.currentY = event.pageY;
-                    console.log(`y: ${y} h: ${h}`)
-                    $(`#main`).height(y-h);
-                }
-
-                $(document.body).on("mousemove", resizeWindow(event));
-
-                $(document.body).on("mouseup", function(event){
-                    console.log("mouseup")
-                    $(document.body).off("mousemove");
-                    component.setup()
-                })  
-            
-   
-        }
+    mount(){
+       var binding = new Binding("mousedown", startDrag)
 
         this.bindings = [binding]
-
-        super.setup();
-
+        super.mount();
     }
 
     html(){
         return "" //for now this is a static existing element name of divider must match static index.html name
     }
+}
 
+/*Dragging functionality*/
+function startDrag(e){
+ var element = $("#main")
+ var diff_y = e.pageY - element.height()
+ var dragFunction = dragDivider(element, diff_y)
+ var dropFunction = dropDivider(dragFunction)
+ window.addEventListener("mousemove", dragFunction)
+ window.addEventListener("mouseup", dropFunction)
+ console.log("added listeners")
+}
+
+
+function dragDivider(component, diff_y){
+    return function(e){
+        h = e.pageY-diff_y
+        component.height(h)
+    }
+}
+
+function dropDivider(dragFunction){
+    return function _drop(e){
+        window.removeEventListener("mousemove", dragFunction)
+        window.removeEventListener("mouseup", _drop)
+    }
 }

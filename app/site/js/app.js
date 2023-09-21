@@ -1,64 +1,97 @@
-folder1 = new Folder(1, "Microcontrollers")
-folder2 = new Folder(2, "Radar Hardware")
-folder3 = new Folder(3, "Profiles")
-folder4 = new Folder(4, "Layouts")
-folder5 = new Folder(5, "Analysis")
-folder6 = new Folder(6, "Design Tools")
-file1 = new File(1, "Radar Beam K-LD7 24GHZ")
-file2 = new File(2, "Texas Instruments 60GHZ")
-file3 = new File(3, "Infineon 24GHZ Transceiver")
-file4 = new File(4, "Velocity Profile")
-file5 = new File(5, "Range Profile")
-file6 = new File(6, "Doppler Profile")
-file7 = new File(7, "Range-Doppler Heatmap")
-file8 = new File(8, "Range-Angle Heatmap")
-file9 = new File(9, "Range-Doppler-Angle Heatmap")
-file10 = new File(10, "Configure Radar Experiment")
-file11 = new File(11, "Max Speed/Distance Analysis")
-file12 = new File(12, "Chirp Design Tool")
-file13 = new File(13, "Antenna Design Tool")
-file14 = new File(14, "FSK Design Tool")
-file15 = new File(15, "Arduino Portenta H7")
-file16 = new File(16, "Arduino MKR Wifi 1010")
-file17 = new File(17, "Arduino Nano 33 BLE")
+
+//Application item callbacks
+function configCallback(event){
+    console.log("configCallback")
+}
+
+function schemaCallback(event){
+    console.log("schemaCallback")
+}
+
+function profileCallback(event){
+    console.log("profileCallback")
+}
+
+function validateCallback(event){
+    console.log("validateCallback")
+}
+
+function analyzeCallback(event){
+    console.log("analyzeCallback")
+}
+
+function connectivityCallback(event){
+    console.log("connectivityCallback")
+}
+
+function addDeviceCallback(event){
+    console.log("addDeviceCallback")
+}
 
 
-folder1.children.push(file15)
-folder1.children.push(file16)
-folder1.children.push(file17)
-
-folder2.children.push(file1)
-folder2.children.push(file2)
-folder2.children.push(file3)
-
-folder3.children.push(file4)
-folder3.children.push(file5)
-folder3.children.push(file6)
-
-folder4.children.push(file7)
-folder4.children.push(file8)
-folder4.children.push(file9)
+function frameworkCallback(event){
+    console.log("frameworkCallback")
+}
 
 
-folder5.children.push(file10)
-folder5.children.push(file11)
+function captureCallback(event){
+    console.log("captureCallback")
+}
 
-folder6.children.push(file12)
-folder6.children.push(file13)
-folder6.children.push(file14)
+function playbackCallback(event){
+    console.log("playbackCallback")
+}
 
 
-fileview = new FileView()
-fileview.children.push(folder1)
-fileview.children.push(folder2)
-fileview.children.push(folder3)
-fileview.children.push(folder4)
-fileview.children.push(folder5)
-fileview.children.push(folder6)
+function openFilecallback(event){
+    console.log("openFilecallback")
+}
 
-divider = new Divider(0, "divider")
+
+function saveFileCallback(event){
+    console.log("saveFileCallback")
+}
+
+
+//Initial default left panel
+group1 = new ItemCollection("Profile","Profiles")
+profile1 = new ItemCollection("Devices","KLD7")
+profile2 = new ItemCollection("Devices" ,"IWR6843")
+
+device1 = new ItemCollection("Device","ArduinoMKR1010WiFi",true)
+device2 = new ItemCollection("Device","InfineonK-LD724GhZ ranscieverDSPModule",true)
+
+config1 = new Item("Action","Config", true, configCallback)
+schema1 = new Item("Action","Schema", true,schemaCallback)
+test1 = new Item("Action","Test",true, profileCallback)
+
+config2 = new Item("Action","Config",true, configCallback)
+schema2 = new Item("Action","Schema",true, schemaCallback)
+test2 = new Item("Action","Test",true, profileCallback)
+
+device1.children.push(config1)
+device1.children.push(schema1)
+device1.children.push(test1)
+
+device2.children.push(config2)
+device2.children.push(schema2)
+device2.children.push(test2)
+
+profile1.children.push(device1)
+profile2.children.push(device2)
+
+group1.children.push(profile1)
+group1.children.push(profile2)
+
+
+panel = new Panel("panel")
+panel.children.push(group1)
+
+
+//Fixed divider for our main application window
+divider = new Divider("VerticalDrag", "divider", "divider")
 mApp.add(divider)
-mApp.add(fileview)
+mApp.add(panel)
 
 mApp.init()
 

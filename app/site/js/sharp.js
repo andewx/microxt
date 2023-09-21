@@ -8,6 +8,12 @@ class Sharp{
         this.attached = false;
         this.recieve = "";
         this.proxyEvents = new Map()
+        this._guid = 0;
+    }
+
+
+    guid(name){
+        return name+this._guid++;
     }
 
 
@@ -62,6 +68,8 @@ class Sharp{
     render(){
         for(let i = 0; i < this.components.length; i++){
             if(this.components[i].updated){
+                console.log(`updating ${this.components[i].id}`)
+                console.log(this.components[i])
                 let component = this.components[i];
                 $("#"+component.id).html(component.html());
                 component.updated = false;
@@ -96,14 +104,20 @@ class Binding{
     }
 }
 
-class KComponent{
-    constructor(){
-        this._name = "Component";
-        this.key = "";
-        this.class = "";
-        this.id = "";
+class Element{
+    constructor(key, name, override_id = ""){
+        this._name = key;
+        this.name = name;
+        if(override_id === ""){
+            this.id = mApp.guid(this.name);
+        }else{
+            this.id = override_id;
+        }
+
+        if(this.id===""){
+            console.log("id is empty fail!!!!")
+        }
         this.updated = true;
-        this.message = "";
         this.children = [];
         this.bindings = [];
         this.hidden = false;
@@ -114,7 +128,7 @@ class KComponent{
             let item = this.bindings[i];
             $(`#${this.id}`).on(item.key, item.event);
         }
-    }d
+    }
 
     getComponents(){
             let arr = this.children.map(item => item)

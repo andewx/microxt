@@ -1,18 +1,10 @@
-class Divider extends KComponent{  
-    constructor(count, name){
-        super()
-        this.key ="Divider"
-        this.count = count;
-        this.name = name;
-        this.id = name+this.count;
-        this.hidden = true;
-        this.updated = true;
-        this.mouseIsDown =false;
+class Divider extends Element{  
+    constructor(key, name, override_id = ""){
+        super(key,name, override_id)
     }
 
     mount(){
-       var binding = new Binding("mousedown", startDrag)
-
+       var binding = new Binding("mousedown", startDrag);
         this.bindings = [binding]
         super.mount();
     }

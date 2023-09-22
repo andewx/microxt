@@ -7,6 +7,7 @@
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/main.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/test.css"  media="screen,projection"/>
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
@@ -19,7 +20,7 @@
       </div> <!----View Component Here-->
       <div class="main-view">
         <div class="flex-main">
-          <div id="main" class="default-main"><img id="mjpg"></img></div> 
+          <div id="main" class="default-main"><div id="maintabs" class="tabs-bar"></div><img id="mjpg" style="height:800px;"></img></div> 
           <div id="divider" class="horizontal-resizer"></div>
           <div id="main-sub" class="sub-main"></div>
         </div>
@@ -43,9 +44,11 @@
   </footer>
     <!--JavaScript at end of body for optimized loading-->
     <script type ="text/javascript" src="js/jquery.min.js"></script>
-    <script type ="text/javascript" src="js/sharp.js"></script>
+    <script type ="text/javascript" src="js/spark.js"></script>
     <script type ="text/javascript" src="js/components/panel.js"></script>
     <script type ="text/javascript" src="js/components/divider.js"></script>
+    <script type ="text/javascript" src="js/components/tabs.js"></script>
+    <script type ="text/javascript" src="js/components/terminal.js"></script>
     <script type ="text/javascript" src="js/app.js" defer></script>
   </body>
 </html>

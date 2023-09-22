@@ -1,6 +1,6 @@
 /*App Hook -- Class is responsible for evaluating and updating component state and attaching
 components to the DOM*/
-class Sharp{
+class Spark{
     constructor(){
         this.components = [];
         this.list_components = [];
@@ -33,8 +33,8 @@ class Sharp{
     }
 
     mount(){
-        for(let i = 0; i < this.list_components.length; i++){
-            this.list_components[i].mount();
+        for(let i = 0; i < this.components.length; i++){
+            this.components[i].mount();
         }
     }
 
@@ -109,9 +109,11 @@ class Element{
         this._name = key;
         this.name = name;
         if(override_id === ""){
-            this.id = mApp.guid(this.name);
+            var name_nospace = name
+            name_nospace = name_nospace.replace(/\s/g, '')
+            this.id = mApp.guid(name_nospace);
         }else{
-            this.id = override_id;
+            this.id = override_id.replace(/\s/g,'');
         }
 
         if(this.id===""){
@@ -127,6 +129,11 @@ class Element{
         for(let i = 0; i < this.bindings.length; i++){  
             let item = this.bindings[i];
             $(`#${this.id}`).on(item.key, item.event);
+        }
+
+        for (let i = 0; i < this.children.length; i++){
+            let component = this.children[i]
+            component.mount()
         }
     }
 
@@ -191,4 +198,4 @@ function stringify(obj){
 }
 
 
-var mApp = new Sharp(); //global - sharp
+var mApp = new Spark(); //global - sharp

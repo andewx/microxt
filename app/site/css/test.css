@@ -46,6 +46,8 @@
     border-width:1px;
     border-color:#303030;
     border-bottom-color:#101010;
+    text-wrap:nowrap;
+    text-overflow:"[..]";
 }
 
 .tabs-bar .tab:hover{

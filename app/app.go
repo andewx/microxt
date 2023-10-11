@@ -10,6 +10,9 @@ import (
 	"github.com/asticode/go-astilectron"
 )
 
+const EVENT = 2
+const EXIT = 1
+
 type ElectronApp struct {
 	App       *astilectron.Astilectron
 	Endpoints map[string]*RemoteHandler
@@ -40,11 +43,11 @@ func New() (*ElectronApp, error) {
 	}
 
 	myApp.Endpoints = make(map[string]*RemoteHandler)
+	myApp.Finished = false
 	return myApp, err
 }
 
 func (app *ElectronApp) Init() error {
-	defer app.App.Close()
 	var sErr = app.App.Start() //Blocking
 
 	if sErr != nil {
@@ -84,41 +87,37 @@ func (app *ElectronApp) Init() error {
 
 	// Add a listener on the window
 	app.Window.On(astilectron.EventNameWindowEventResize, func(e astilectron.Event) (deleteListener bool) {
-		fmt.Println("Window resized")
 		return
 	})
 
 	// Add a listener on the window
 	app.Window.On(astilectron.EventNameWindowEventClosed, func(e astilectron.Event) (deleteListener bool) {
-		fmt.Println("Window closed")
 		app.Finished = true
 		return
 	})
 
 	// Add a listener on the window
 	app.Window.On(astilectron.EventNameWindowCmdDestroy, func(e astilectron.Event) (deleteListener bool) {
-		fmt.Println("Window closed")
 		app.Finished = true
 		return
 	})
 
 	// Add a listener on the window
 	app.Window.On(astilectron.EventNameWindowCmdClose, func(e astilectron.Event) (deleteListener bool) {
-		fmt.Println("Window closed")
 		app.Finished = true
 		return
 	})
 
-	app.App.Wait()
-
 	return err
 }
 
-func (app *ElectronApp) RunEventLoop() {
+func (app *ElectronApp) RunEventLoop(status chan int) {
+	defer app.App.Close()
 	for !app.Finished {
 		app.App.Wait()
+		status <- EVENT
 	}
-
+	status <- EXIT
 }
 
 func (app *ElectronApp) PassContext() (*astilectron.Astilectron, *astilectron.Window) {

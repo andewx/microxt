@@ -1,6 +1,6 @@
 /*App Hook -- Class is responsible for evaluating and updating component state and attaching
 components to the DOM*/
-class Spark{
+class Sharp{
     constructor(){
         this.components = [];
         this.list_components = [];
@@ -198,4 +198,4 @@ function stringify(obj){
 }
 
 
-var mApp = new Spark(); //global - sharp
+var mApp = new Sharp(); //global - sharp

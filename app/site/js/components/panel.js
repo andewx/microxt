@@ -9,6 +9,10 @@ class Panel extends Element{
         super.mount();
     }
 
+    render(){
+        super.render();
+    }
+
     html(){
         return `<div id=${this.id} class='panel'> <div class="large config"><span class="bi-plus-circle"></span></div>${stringify(this.children.map(item => item.html()))}</div>`
     }
@@ -48,6 +52,11 @@ class ItemCollection extends Element{
         this.bindings = [binding]
         super.mount();
 
+        
+    }
+
+    render(){
+        super.render();
     }
 
 
@@ -81,7 +90,9 @@ class Item extends Element{
     }
 
 
-
+    render(){
+        super.render();
+    }
 
     html(){
         var str = ""

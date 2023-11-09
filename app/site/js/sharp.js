@@ -1,99 +1,121 @@
-/*App Hook -- Class is responsible for evaluating and updating component state and attaching
-components to the DOM*/
+/*Sharp - Simple virtual component management, expects to reflect state from server and acts a JS attachment
+for components retrieved from the server. Mount components attaches callbacks to the components. Render is
+a utility method for user defined component effects given the Sharp Object-Event framerate loop update*/
+
+/*DOM elements get added by - id=Name+UID, class=GroupName+GUID*/
 class Sharp{
     constructor(){
-        this.components = [];
-        this.list_components = [];
-        this.updated = true;
-        this.attached = false;
-        this.recieve = "";
-        this.proxyEvents = new Map()
+        this.components = new Map()
+        this.flat_components = new Map()
         this._guid = 0;
+        this.stopwatch = new Stopwatch(50/1000); //50ms frame timer
     }
-
 
     guid(name){
         return name+this._guid++;
     }
 
-
     //setup the app by attaching component update hooks to their respective elements
     init(){
-
-        for(let i = 0; i < this.components.length; i++){
-            this.list_components = this.list_components.concat(this.components[i].getComponents())
-            this.list_components.push(this.components[i])
-        }
+        //sharp expects that the server will determine the initial state of the application
+        $(document).ready(function(){
+            document.addEventListener("astilectron-ready", function(){
+                astilectron.onMessage(function(message){
+                    //Process all messages from GO - we expect JSON format
+                    const json_message = JSON.parse(message)
+                    if(json_message.type === "@update_dom"){
+                        json_message.selectors.forEach((item)=>{
+                            $(item.selector).html(item.html)
+                        })
+                      
+                    }else if(json_message.type === "@refresh_components"){
+                        this.clear()
+                        //May have to sort the components first
+                        if(json_message.variable === "components"){
+                            json_message.value.forEach((element)=>{
+                                newComponentFromJSON(element)
+                            })
+                        }
+                    }else if(json_message.type === "@add_component"){
+                       let element = json_message.value.element
+                       newComponentFromJSON(element)
+                    }else if(json_message.type === "@delete_component"){
+                        let key = json_message.value
+                        this.components.delete(key)
+                    }else if(json_message.type === "@update_component"){
+                        let key = json_message.key
+                        let props = json_message.props
+                        let element = json_message.element
+                        let component = this.components.get(key)
+                        component.update(element, props)
+                    }
+                })
+            })
+        })
 
         $.when($.ready).then(function(){
-            mApp.render()
             mApp.mount()
         })
 
     }
 
+    event(callback){
+        //global application event callback
+    }
+
+
     mount(){
-        for(let i = 0; i < this.components.length; i++){
-            this.components[i].mount();
-        }
-    }
-
-    add(component){
-        this.components.push(component);
-    }
-
-    deleteBy(key){
-        for(let i =0; i < this.components.length; i++){
-            if (this.components[i].key === key){
-                this.components.splice(i,1);
-            }
-        }
+        this.components.forEach((value, key, map) => {
+            value.mount()
+        })
     }
 
 
-    registerProxy(proxy_event){
-        let key = `${proxy_event.event}:${proxy_event.proxy}`
-        this.proxyEvents.set(key, proxy_event.component)
+    get(key){
+        return this.flat_components.get(key)
     }
 
-
-    proxy(key){
-        return this.proxyEvents.get(key)
+    addByKey(component,key){
+        this.components.set(key, component)
     }
 
-    deleteProxyEvent(key){
-        this.proxyEvents.delete(key)
+    delete(key){
+        this.flat_components.delete(key)
+        this.components.delete(key)
     }
 
     render(){
-        for(let i = 0; i < this.components.length; i++){
-            if(this.components[i].updated){
-                console.log(`updating ${this.components[i].id}`)
-                console.log(this.components[i])
-                let component = this.components[i];
-                $("#"+component.id).html(component.html());
-                component.updated = false;
-            }
-        }
-    }
-
-
-    getComponentById(id){
-        for(let i = 0; i < this.components.length; i++){
-            let item = this.components[i].getComponentById(id);
-            if(item != null){
-                return item;
-            }
-        }
-        return null;
+        this.components.forEach((value, key, map) => {
+            value.render()
+        })
     }
 }
 
-class ProxyEvent{
-    constructor(component, event_type, proxy_id){
-        this.component = component
-        this.event = event_type
-        this.proxy = proxy_id
+function newComponentFromJSON(element){
+    let component = null
+    if(element.type === "Collection"){
+        component = new ItemCollection(element.key, element.name, element.icon, element.hidden)
+        this.addByKey(component, element.key)
+    }
+    else if(element.type === "Item"){
+        component = new Item(element.key, element.name, element.icon, element.hidden)
+        if(element.belongs === ""){
+            this.addByKey(component, element.key)
+        }
+        belongs = this.map_components.get(element.belongs)
+        belongs.children.push(component)
+    }
+    else if(element.type === "Tab"){
+        component = new Tab(element.key, element.name, element.icon, element.hidden)
+        if(element.belongs === ""){
+            this.addByKey(component, element.key)
+        }
+        belongs = this.map_components.get(element.belongs)
+        belongs.children.push(component)
+    }
+    else if(element.type === "Panel"){
+        component = new Panel(element.key, element.name, element.icon, element.hidden)
+        this.addByKey(component, element.key)
     }
 }
 
@@ -123,6 +145,11 @@ class Element{
         this.children = [];
         this.bindings = [];
         this.hidden = false;
+    }
+
+
+    update(element, props){
+
     }
 
     mount(){
@@ -195,6 +222,37 @@ function stringify(obj){
 
     return str
 
+}
+
+class Stopwatch{
+    constructor(period){
+        this.period = period;
+        this.start = new Date();
+        this.end = null;
+    }
+
+    sample(){
+        this.end = new Date();
+    }
+
+    getElapsed(){
+        return this.end - this.start;
+    }
+
+    reset(){
+        this.start = new Date();
+        this.end = null;
+    }
+
+    hook(){
+        this.sample();
+        let elapsed = this.getElapsed();
+        if(elapsed > this.period){
+            this.reset();
+            return true;
+        }
+        return false;
+    }
 }
 
 

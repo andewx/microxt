@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/andewx/microxt/app"
+	"github.com/andewx/microxt/app/application"
 	"github.com/andewx/microxt/net"
 )
 
@@ -14,22 +15,35 @@ func main() {
 	//Create a channel to monitor the application status
 	app_status := make(chan int)
 	main_exit := false
-
-	//Establish a UDP Connection
-	tcpConnection := net.NewTCPConnection()
+	backend, _ := application.NewAirXTApplication()
+	//Establish a TCP Connection
+	tcpConnection := net.NewTCPConnection("192.168.0.10:9060")
 	if tcpConnection != nil {
 		defer tcpConnection.Close()
 	} else {
-		fmt.Printf("Failed to establish UDP Connection")
+		fmt.Printf("Failed to establish TCP Connection")
+		return
+	}
+
+	//Send SSID/Password as raw byte messages to the connection in successio
+	var err error
+
+	_, err = tcpConnection.Send([]byte("ObamaPhone"))
+
+	if err != nil {
+		fmt.Printf("%sError$%s, failed to send SSID/Password to device", net.CS_RED, net.CS_WHITE)
+		return
+	}
+
+	_, err = tcpConnection.Send([]byte("Ijoyflqt9"))
+
+	if err != nil {
+		fmt.Printf("%sError$%s, failed to send SSID/Password to device", net.CS_RED, net.CS_WHITE)
 		return
 	}
 
 	{
-		go tcpConnection.Listen(app_status)
-	}
-
-	{
-		app := launchElectronApplication()
+		app := launchElectronApplication(backend)
 		if app != nil {
 			go app.RunEventLoop(app_status)
 		}
@@ -43,9 +57,9 @@ func main() {
 	}
 }
 
-func launchElectronApplication() *app.ElectronApp {
+func launchElectronApplication(backend application.Application) *app.ElectronApp {
 	//Launch Our Electron Application
-	electronApplication, err := app.New()
+	electronApplication, err := app.New(backend)
 	if err != nil {
 		fmt.Printf("Failed to launch application %s", err)
 		return nil

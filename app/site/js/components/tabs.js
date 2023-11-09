@@ -10,6 +10,10 @@ class TabsBar extends Element{
         super.mount();
     }
 
+    render(){
+        super.render();
+    }
+
     html(){
         return `<div id=${this.id} class='tabs-bar'>${stringify(this.children.map(item => item.html()))}</div>`
     }
@@ -51,6 +55,10 @@ class Tab extends Element{
         this.bindings = [binding]
         super.mount();
 
+    }
+
+    render(){
+        super.render();
     }
 
 

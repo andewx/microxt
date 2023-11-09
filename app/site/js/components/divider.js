@@ -9,6 +9,10 @@ class Divider extends Element{
         super.mount();
     }
 
+    render(){
+        super.render();
+    }
+
     html(){
         return "" //for now this is a static existing element name of divider must match static index.html name
     }

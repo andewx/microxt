@@ -21,17 +21,9 @@ parameters
 
 type Messages struct {
 	Ack          proto.Ack
-	Adc          proto.AdcData
-	Direct       proto.Directive
-	Ddat         proto.DdatData
-	Fft          proto.FftData
-	FrameDone    proto.FrameDone
-	Pdat         proto.PdatData
-	RadarConfig  proto.RadarConfigData
+	Send         proto.Directive
+	Recieve      proto.Directive
 	StreamConfig proto.StreamConfig
-	Sync         proto.Sync
-	Payload      proto.PayloadData
-	Handshake    proto.Handshake
 }
 
 type Talker struct {
@@ -57,17 +49,9 @@ func NewTalker() *Talker {
 func (t *Talker) Receive(message []byte) error {
 
 	if pr.Unmarshal(message, &t.Inbox.Ack) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Adc) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Direct) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Ddat) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Fft) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.FrameDone) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Pdat) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.RadarConfig) == nil {
 	} else if pr.Unmarshal(message, &t.Inbox.StreamConfig) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Sync) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Payload) == nil {
-	} else if pr.Unmarshal(message, &t.Inbox.Handshake) == nil {
+	} else if pr.Unmarshal(message, &t.Inbox.Send) == nil {
+	} else if pr.Unmarshal(message, &t.Inbox.Recieve) == nil {
 	} else {
 		return fmt.Errorf("%serror%s message type not recognized over serial port interface", CS_RED, CS_WHITE)
 	}
@@ -76,4 +60,8 @@ func (t *Talker) Receive(message []byte) error {
 
 func (t *Talker) Send(msg protoreflect.ProtoMessage) ([]byte, error) {
 	return pr.Marshal(msg)
+}
+
+func (t *Talker) SendRaw(msg []byte) ([]byte, error) {
+	return msg, nil
 }

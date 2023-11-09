@@ -10,6 +10,10 @@ class Terminal extends Element{
         super.mount();
     }
 
+    render(){
+        super.render();
+    }
+
     html(){
         return `<div id=${this.id} class='terminal'> <div class="large config"><span class="bi-plus-circle"></span></div>${stringify(this.children.map(item => item.html()))}</div>`
     }
@@ -26,6 +30,10 @@ class TerminalInput extends Element{
 
     mount(){
         super.mount();
+    }
+
+    render(){
+        super.render();
     }
 
     html(){

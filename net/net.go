@@ -68,7 +68,7 @@ func IPV4Address() *net.TCPAddr {
 }
 
 // TCPBroadcast is a function that sends a TCP broadcast message, we send a specialized message for connection
-func NewTCPConnection() *TCPConnection {
+func NewTCPConnection(addressport string) *TCPConnection {
 	// Create New TCP Connection
 	TCPConnection := new(TCPConnection)
 	TCPConnection.Talker = make([]*Talker, 1)
@@ -82,58 +82,20 @@ func NewTCPConnection() *TCPConnection {
 		fmt.Printf("%sError%s getting local IP address\n", CS_RED, CS_WHITE)
 	}
 
-	// Define the broadcast address and port
-	broadcastAddress := "192.168.1.255" // Replace with your network's broadcast address
-	port := 9060                        // Replace with your chosen TCP port
-
-	// Resolve the TCP address
-	BAddress := fmt.Sprintf("%s:%d", broadcastAddress, port)
-
-	// Create a UDP connection we initiate request across the network
+	// Create a TCP connection we initiate request across the network
 	var conn net.Conn
 	var err error
 	var waitTime int
-	for conn, err = net.Dial("UDP", BAddress); err != nil; {
+	for conn, err = net.Dial("tcp", addressport); err != nil; {
 		time.Sleep(1 * time.Second)
 		waitTime += 1
 		if waitTime > TIMEOUT {
-			fmt.Printf("%sError%s connecting with UDP broadcast address: %v\n", CS_RED, CS_WHITE, err)
+			fmt.Printf("%sError%s connecting with TCP address: %v\n", CS_RED, CS_WHITE, err)
 			return nil
 		}
 	}
 
-	// We only communicate with the local device
-	localAddr := conn.LocalAddr().(*net.TCPAddr)
-	TCPConnection.Addr = localAddr
-
-	// Compose and send the UDP message to switch over to TCP
-	message := "SWTCH"
-	_, err = conn.Write([]byte(message))
-	if err != nil {
-		fmt.Printf("Error sending message: %v\n", err)
-		return nil
-	}
-
-	fmt.Printf("Sent UDP broadcast message: %s\n", message)
-
-	// Delay and allow network to switch over to TCP
-	time.Sleep(1 * time.Second)
-
-	// Form TCP connection
-	// Create a UDP connection we initiate request across the network
-	var tcp_conn net.Conn
-	var tcp_err error
-	var tcp_waitTime int
-	for tcp_conn, tcp_err = net.Dial("TCP", TCPConnection.Addr.String()); tcp_err != nil; {
-		time.Sleep(1 * time.Second)
-		tcp_waitTime += 1
-		if tcp_waitTime > TIMEOUT {
-			fmt.Printf("%sError%s connecting with TCP local address: %s\n", CS_RED, CS_WHITE, TCPConnection.Addr.String())
-			return nil
-		}
-	}
-
-	TCPConnection.Conn = tcp_conn.(*net.TCPConn)
+	TCPConnection.Conn = conn.(*net.TCPConn)
 	TCPConnection.Status = IDLE
 
 	return TCPConnection
@@ -168,4 +130,8 @@ func (u *TCPConnection) Listen(status chan int) {
 		}
 
 	}
+}
+
+func (u *TCPConnection) Send(bytes []byte) (int, error) {
+	return u.Conn.Write(bytes)
 }

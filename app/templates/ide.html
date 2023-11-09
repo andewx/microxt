@@ -1,0 +1,50 @@
+  <!----Nav-->
+  <main id="mainbody">
+    <div class="grid-main">
+      <div id="panel" class="left-sidebar">
+        {{range .Window.IDE.Devices}}
+        <div id='{{.DeviceID}}' class='collection closed'><span class="small bi-chevron-right"></span><span class='small {{.icon}}'></span><div class='subject'>{{.Name}}</div><div class="indicator">{{.Length}}</div></div>
+        <div class="nest">
+            {{range .Items}}
+                <div id='{{.ItemID}}' class='item small hidden'><span class='small {{.icon}}'></span>{{.Name}}</div>
+            {{end}}
+        </div>
+        {{end}}
+      </div> <!----View Component Here-->
+      <div class="main-view">
+        <div class="flex-main">
+          <div id="main" class="default-main"><div id="maintabs" class="tabs-bar">
+            <!---Template Tabs- From Application-->
+            <div id="tabs-bar" class="tabs-bar">
+                {{range .Window.IDE.Tabs}}
+                <div id='{{.TabId}}' class='tab {{.Active}}'><div class="subject">{{.Name}}</div><span class='indicator {{.Indicator}}'></span></div>
+                {{end}}
+            </div>
+            <!--- WebGL Rendering for FFT/ADC Data and Displays-->
+          </div><img id="mjpg" style="height:800px;"></img></div> 
+          <div id="divider" class="horizontal-resizer"></div>
+          <!--- Application tablular text terminal/logger display-->
+          <div id="main-sub" class="sub-main">
+            <div class="terminal-tabs">
+                {{range .Window.IDE.Terminal.Tabs}}
+                <div id='{{.TabId}}' class='tab {{.Active}}'><div class="subject">{{.Name}}</div><span class='indicator {{.Indicator}}'></span></div>
+                {{end}}
+            </div>
+          </div>
+        </div>
+      </div> <!------Main View Component Here--> 
+      <div class="right-gutter">
+        <div id="right-gutter-id"></div> <!----Right Gutter View Component Here-->
+      </div>
+    </div>
+  </main>
+  
+  <footer class="page-footer">
+    <div class="row">
+      <ul class="left">
+        {{range .Window.IDE.FooterTabs}}
+        <li class="col s2">{{.Name}}</li>
+        {{end}}
+      </ul>
+    </div>
+  </footer>

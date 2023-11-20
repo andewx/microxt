@@ -1,60 +1,155 @@
-/*Sharp - Simple virtual component management, expects to reflect state from server and acts a JS attachment
-for components retrieved from the server. Mount components attaches callbacks to the components. Render is
-a utility method for user defined component effects given the Sharp Object-Event framerate loop update*/
+/*Sharp - Functional Javascript Frontend Endpoint Framework*/
 
 /*DOM elements get added by - id=Name+UID, class=GroupName+GUID*/
-class Sharp{
+
+
+class Session{
     constructor(){
-        this.components = new Map()
-        this.flat_components = new Map()
+        this.session = {}
+    }
+
+    set(key, value){
+        this.session[key] = value
+    }
+
+    get(key){
+        return this.session[key]
+    }
+
+    remove(key){
+        delete this.session[key]
+    }
+
+
+    read(message){
+        for(let key in message.session){
+            console.log("SESSION:"+key + ":" + message.session[key])
+            this.set(key, message.session[key])
+        }
+    }
+
+    request(route, paramaters){
+        var msg = {
+            routekey:route,
+            sessionkey:this.get("uid"),
+            params:paramaters, //map[string]string
+        
+        }
+        return JSON.stringify(msg)
+    }
+}
+
+// Sharp is an endpoints and session frontend framework
+// Exposes its enpoints with function handlers to JSON messages
+
+class Sharp{
+    constructor(sess){
+        this.session = sess
         this._guid = 0;
         this.stopwatch = new Stopwatch(50/1000); //50ms frame timer
+        this.endpoints = new Map();
     }
 
     guid(name){
         return name+this._guid++;
     }
 
+    addEndpoint(name, handler){
+        this.endpoints.set(name, handler)
+    }
+
+    call(name, message){
+        this.endpoints.get(name)(message)
+    }
+
+    sessionAction(json){
+        for(let key in json.session){
+            this.session.set(key, json.session[key])
+        }
+    }
+
+    scaffold(json){
+        for(let key in json.scaffold){
+            let scaffold = json.scaffold[key]
+            let element = document.createElement(scaffold.tag)
+            element.id = scaffold.id
+            element.className = scaffold.class
+            element.innerHTML = scaffold.html
+            document.body.appendChild(element)
+        }
+    }
+
+    error(json){   
+        console.log(json)
+    }
+
+    radardata(json){
+        console.log(json)
+    }
+
     //setup the app by attaching component update hooks to their respective elements
     init(){
         //sharp expects that the server will determine the initial state of the application
+
+        global_session.set("uid", "0")
         $(document).ready(function(){
+            htmx.defineExtension('hx-el', {
+                onEvent : function(name,evt){
+                  var msg = {
+                    routekey:name,
+                    sessionkey:global_session.get("uid"),
+                    params:{}, //map[string]string
+                  }
+
+                  if(name === "@provision"){
+                    msg.params["ssid"] = $("#ssid").val()
+                    msg.params["password"] = $("#password").val()
+                  }
+                  astilectron.sendMessage(msg, function(message){
+                    console.log(evt)
+                  })
+                }
+              })
+    
+            //Add the root event listener for all components
             document.addEventListener("astilectron-ready", function(){
                 astilectron.onMessage(function(message){
+                    console.log(message)
+                    if(message == null){
+                        return
+                    }
                     //Process all messages from GO - we expect JSON format
                     const json_message = JSON.parse(message)
-                    if(json_message.type === "@update_dom"){
-                        json_message.selectors.forEach((item)=>{
+                    if(json_message.type === "@dom"){
+                        json_message.extensions.selectors.forEach((item)=>{
+                            //Set the inner html of the element
                             $(item.selector).html(item.html)
                         })
-                      
-                    }else if(json_message.type === "@refresh_components"){
-                        this.clear()
-                        //May have to sort the components first
-                        if(json_message.variable === "components"){
-                            json_message.value.forEach((element)=>{
-                                newComponentFromJSON(element)
-                            })
-                        }
-                    }else if(json_message.type === "@add_component"){
-                       let element = json_message.value.element
-                       newComponentFromJSON(element)
-                    }else if(json_message.type === "@delete_component"){
-                        let key = json_message.value
-                        this.components.delete(key)
-                    }else if(json_message.type === "@update_component"){
-                        let key = json_message.key
-                        let props = json_message.props
-                        let element = json_message.element
-                        let component = this.components.get(key)
-                        component.update(element, props)
+                    }else if(json_message.type === "@error"){
+                        console.log(json_message.extensions.error)
+                    }else if(json_message.type === "@session"){
+                        global_session.read(json_message)
+                    }else if(json_message.type === "@scaffold"){
+                        this.scaffold(json_message)
+                    }else if(json_message.type === "@radardata"){
+                        this.radardata(json_message)
+                    }else if(json_message.type === "@endpoint"){
+                        this.call(json_message.extensions.name, json_message)
                     }
                 })
-            })
-        })
 
-        $.when($.ready).then(function(){
-            mApp.mount()
+                //Make an initial session request to the server expecting @session response
+                console.log(global_session.request("@session", {default:"default"}))
+                astilectron.sendMessage(global_session.request("@session"), function(message){
+                    //During response we request to get the initial view scaffold
+                      astilectron.sendMessage(global_session.request("@scaffold"), function(message){})
+                })
+
+            })
+
+
+            //Register the scaffolding by sending a request to the application
+
         })
 
     }
@@ -62,155 +157,6 @@ class Sharp{
     event(callback){
         //global application event callback
     }
-
-
-    mount(){
-        this.components.forEach((value, key, map) => {
-            value.mount()
-        })
-    }
-
-
-    get(key){
-        return this.flat_components.get(key)
-    }
-
-    addByKey(component,key){
-        this.components.set(key, component)
-    }
-
-    delete(key){
-        this.flat_components.delete(key)
-        this.components.delete(key)
-    }
-
-    render(){
-        this.components.forEach((value, key, map) => {
-            value.render()
-        })
-    }
-}
-
-function newComponentFromJSON(element){
-    let component = null
-    if(element.type === "Collection"){
-        component = new ItemCollection(element.key, element.name, element.icon, element.hidden)
-        this.addByKey(component, element.key)
-    }
-    else if(element.type === "Item"){
-        component = new Item(element.key, element.name, element.icon, element.hidden)
-        if(element.belongs === ""){
-            this.addByKey(component, element.key)
-        }
-        belongs = this.map_components.get(element.belongs)
-        belongs.children.push(component)
-    }
-    else if(element.type === "Tab"){
-        component = new Tab(element.key, element.name, element.icon, element.hidden)
-        if(element.belongs === ""){
-            this.addByKey(component, element.key)
-        }
-        belongs = this.map_components.get(element.belongs)
-        belongs.children.push(component)
-    }
-    else if(element.type === "Panel"){
-        component = new Panel(element.key, element.name, element.icon, element.hidden)
-        this.addByKey(component, element.key)
-    }
-}
-
-class Binding{
-    constructor(key, event){
-        this.key = key
-        this.event = event
-    }
-}
-
-class Element{
-    constructor(key, name, override_id = ""){
-        this._name = key;
-        this.name = name;
-        if(override_id === ""){
-            var name_nospace = name
-            name_nospace = name_nospace.replace(/\s/g, '')
-            this.id = mApp.guid(name_nospace);
-        }else{
-            this.id = override_id.replace(/\s/g,'');
-        }
-
-        if(this.id===""){
-            console.log("id is empty fail!!!!")
-        }
-        this.updated = true;
-        this.children = [];
-        this.bindings = [];
-        this.hidden = false;
-    }
-
-
-    update(element, props){
-
-    }
-
-    mount(){
-        for(let i = 0; i < this.bindings.length; i++){  
-            let item = this.bindings[i];
-            $(`#${this.id}`).on(item.key, item.event);
-        }
-
-        for (let i = 0; i < this.children.length; i++){
-            let component = this.children[i]
-            component.mount()
-        }
-    }
-
-    getComponents(){
-            let arr = this.children.map(item => item)
-            for(let i = 0; i < arr.length; i++){
-                arr = arr.concat(arr[i].getComponents())
-            }
-        
-            return arr
-    }
-
-    getComponentById(id){
-        if(this.id === id){
-            return this;
-        }
-        else{
-            for(let i = 0; i < this.children.length; i++){
-                let item = this.children[i].getComponentById(id);
-                if(item != null){
-                    return item;
-                }
-            }
-        }
-        return null;
-    }
-
-    addUnique(id){
-        this.children.push(id);
-    }
-
-    addClass(className){
-        this.class = className;
-    }
-
-    addBinding(key, binding){
-        let newBinding = new Binding();
-        newBinding.key = key;
-        newBinding.event = binding;
-        this.bindings.push(newBinding);
-    }
-
-    html(){
-        var str =  ""
-        for(let i = 0; i < this.children.length; i++){
-            str += this.children[i].html();
-        }
-        return str
-    }
-
 
 }
 
@@ -223,6 +169,7 @@ function stringify(obj){
     return str
 
 }
+
 
 class Stopwatch{
     constructor(period){
@@ -254,6 +201,3 @@ class Stopwatch{
         return false;
     }
 }
-
-
-var mApp = new Sharp(); //global - sharp

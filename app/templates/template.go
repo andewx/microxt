@@ -1,41 +1,55 @@
 package templates
 
 import (
-	"text/template"
+	"html/template"
+	"io"
+
+	"github.com/andewx/microxt/app/models"
 )
 
+type StringWriter struct {
+	Str string
+}
+
+func (s *StringWriter) Write(p []byte) (int, error) {
+	s.Str = string(p)
+	return len(p), nil
+}
+
+//--------------Template---------------//
+
 type Template interface {
-	Info() string
-	AddItem(interface{}, string) error
-	Get() string
+	Create(string, ...string) error
+	Execute(obj *models.SessionObject, w io.Writer) error
 }
 
-type ProvisionTemplate struct {
+type ApplicationTemplate struct {
 	Template *template.Template
+	Name     string
 }
 
-func (t *ProvisionTemplate) Create() error {
+func NewTemplate(name string, filenames ...string) *ApplicationTemplate {
+	templ := &ApplicationTemplate{}
+	templ.Create(name, filenames...)
+	return templ
+}
+
+func (t *ApplicationTemplate) Create(name string, filenames ...string) error {
 	var err error
-	t.Template, err = template.New("Provision").ParseFiles("provision.html")
+	t.Template = template.New(name)
+	t.Name = name
+	t.Template, err = template.ParseFiles(filenames...)
 	return err
 }
 
-type IDETemplate struct {
-	Template *template.Template
-}
-
-func (t *IDETemplate) Create() error {
+func (t *ApplicationTemplate) Execute(obj *models.SessionObject, w io.Writer) error {
 	var err error
-	t.Template, err = template.New("IDE").ParseFiles("ide.html")
-	return err
-}
+	ts := t.Template.Templates()
+	for _, tmp := range ts {
+		if err = tmp.Execute(w, obj); err != nil {
+			return err
+		}
+	}
 
-type LoginTemplate struct {
-	Template *template.Template
-}
-
-func (t *LoginTemplate) Create() error {
-	var err error
-	t.Template, err = template.New("IDE").ParseFiles("ide.html")
 	return err
 }

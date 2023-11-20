@@ -17,13 +17,13 @@ func TestTemplate(t *testing.T) {
 	file2 := common.ProjectRelativePath("app/templates/login.gohtml")
 	var session *models.SessionObject
 	session = models.NewSessionObject()
-	err = tmpl.Create(session, "test", file1, file2)
+	err = tmpl.Create("test", file1, file2)
 
 	if err != nil {
 		t.Errorf("Failed to create template")
 	}
 
-	err = tmpl.Execute(os.Stdout)
+	err = tmpl.Execute(session, os.Stdout)
 
 	if err != nil {
 		t.Errorf("Failed to execute template %s", err)

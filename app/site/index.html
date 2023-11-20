@@ -2,31 +2,28 @@
 <html>
   <head>
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="fonts/bootstrap/bootstrap-icons.min.css"  media="screen,projection"/>
+    <!-- https://material.io/resources/icons/?style=sharp -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Sharp" rel="stylesheet">
+
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/main.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/test.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/styles.css"  media="screen,projection"/>
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
-  <body hx-ext="electron" hx-trigger="ready" name="@scaffold" id="root" class="dark_theme">
+  <body hx-ext="hx-el" hx-trigger="load" hx-swap="innerHTML" hx-target="body" name="@scaffold" id="root" class="dark_theme">
+    Loading...
   </body>
+
+
+  <!-- Insert this line above script imports  -->
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+  <!-- normal script imports etc  -->
   <script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script>
-      html.defineExtension('electron', {
-        onEvent : function(name,evt){
-          var msg = {
-            routekey:name,
-            sessionkey:sess.key,
-            params:{},
-          }
-          astilectron.sendMessage(msg, function(message){
-            console.log(evt)
-          })
-        }
-      })
-    </script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="js/sharp.js"></script>
+  <script src= "js/endpoints.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/effects.js"></script>
+
 </html>

@@ -2,11 +2,12 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type JsonRequest struct {
 	RouteKey   string            `json:"routekey"`
-	SessionKey int64             `json:"sessionkey"`
+	SessionKey string            `json:"sessionkey"`
 	Paramaters map[string]string `json:"params"`
 }
 
@@ -15,6 +16,7 @@ func NewJsonRequest(message string) *JsonRequest {
 
 	err := json.Unmarshal([]byte(message), r)
 	if err != nil {
+		fmt.Printf("Failed to decode json request: %s\n", err)
 		return nil
 	}
 	return r

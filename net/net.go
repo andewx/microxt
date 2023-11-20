@@ -3,7 +3,6 @@ package net
 import (
 	"fmt"
 	"net"
-	"time"
 )
 
 const APPLICATION_PORT = 9060
@@ -18,12 +17,20 @@ const EXIT = 1
 const IDLE = 0
 const HANDSHAKE = 2
 
+const (
+	NO_DEVICE = iota
+	DEVICE_CONNECTED
+	DEVICE_SCANNING
+	DEVICE_ON
+	DEVICE_DISCONNECTED
+)
+
 // TCPConnection is a struct that contains the TCP connection, address, and message
 type TCPConnection struct {
 	Conn   *net.TCPConn
 	Addr   *net.TCPAddr
 	MyAddr *net.TCPAddr
-	Talker []*Talker
+	Talker *Talker
 	Status int
 }
 
@@ -68,11 +75,10 @@ func IPV4Address() *net.TCPAddr {
 }
 
 // TCPBroadcast is a function that sends a TCP broadcast message, we send a specialized message for connection
-func NewTCPConnection(addressport string) *TCPConnection {
+func NewTCPConnection(addressport string) (*TCPConnection, error) {
 	// Create New TCP Connection
 	TCPConnection := new(TCPConnection)
-	TCPConnection.Talker = make([]*Talker, 1)
-	TCPConnection.Talker[0] = NewTalker()
+	TCPConnection.Talker = NewTalker()
 	TCPConnection.Status = HANDSHAKE
 
 	//UDP Connection For Broadcast to obtain device IP before we switch over to TCP communication
@@ -87,18 +93,17 @@ func NewTCPConnection(addressport string) *TCPConnection {
 	var err error
 	var waitTime int
 	for conn, err = net.Dial("tcp", addressport); err != nil; {
-		time.Sleep(1 * time.Second)
+		//	time.Sleep(1 * time.Second)
 		waitTime += 1
 		if waitTime > TIMEOUT {
-			fmt.Printf("%sError%s connecting with TCP address: %v\n", CS_RED, CS_WHITE, err)
-			return nil
+			return nil, fmt.Errorf("%sError%s connecting with TCP address: %v\n", CS_RED, CS_WHITE, err)
 		}
 	}
 
 	TCPConnection.Conn = conn.(*net.TCPConn)
 	TCPConnection.Status = IDLE
 
-	return TCPConnection
+	return TCPConnection, nil
 }
 
 func (u *TCPConnection) Close() {
@@ -107,28 +112,33 @@ func (u *TCPConnection) Close() {
 
 func (u *TCPConnection) Listen(status chan int) {
 	finished := false
+	buffer := make([]byte, 1024*4)
+	u.Talker.LocalStatus = IDLE
+	u.Talker.DeviceStatus = IDLE
+	u.Talker.ConversationID = "0"
+	u.Talker.Inbox = Messages{}
 	fmt.Printf("%sListening%s for TCP messages...\n", CS_YELLOW, CS_WHITE)
 	for !finished {
-		if msg := <-status; msg == EXIT {
-			finished = true
-		} else {
-			// Read from the TCP connection
-			buffer := make([]byte, 1024)
-			_, err := u.Conn.Read(buffer)
-			if err != nil {
-				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-					fmt.Println("Timed out waiting for data")
-				} else {
-					fmt.Printf("Error reading from TCP connection: %v\n", err)
-				}
+		// Read from the TCP connection
+		_, err := u.Conn.Read(buffer)
+		if err != nil {
+			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+				fmt.Println("Timed out waiting for data")
 			} else {
-				// Print the TCP message
-				fmt.Printf("%sReceived TCP broadcast: %s\n", CS_GREEN, buffer[:len(buffer)-1])
-
+				fmt.Printf("Error reading from TCP connection: %v\n", err)
 			}
+		} else {
+			// Print the TCP message
+			fmt.Printf("%sReceived TCP broadcast: %s\n", CS_GREEN, buffer[:len(buffer)-1])
+			err = u.Talker.Receive(buffer)
 
+			if err != nil {
+				fmt.Printf("%sError%s, failed to parse message from device: %v\n", CS_RED, CS_WHITE, err)
+			} else {
+				fmt.Printf("%sMessage%s, parsed message from device:\n", CS_GREEN, CS_WHITE)
+			}
+			//Interrogate and route commands etc , handle the protobuf message here
 		}
-
 	}
 }
 

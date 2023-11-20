@@ -1,0 +1,605 @@
+
+@matte-grey: #343633ff;
+@night: #161513ff;
+@matte: #1f1f23;
+@panel:#1c1c1c;
+@divider:#2a2a2b;
+@light: #f4f3eeff;
+@white:#ffffffff;
+@accent-1: #db5461ff;
+@accent-2: #a63446ff;
+@grey: #202020ff;
+@light-grey: rgb(151, 151, 151);
+@stoplight-yellow:#fdB024;
+@green: #2bc131;
+@red: #fb4546;
+@blue: #2962b9;
+@yellow: #f9d423;
+@green: #29c131;
+@link-color: @blue;
+@widget-color:@accent-1;
+
+@bar-color:@night;
+@panel-color:@panel;
+@divider-color:@divider;
+
+//Grid variables
+@content-grid-columns:10;
+@content-grid-gutter:30px;
+
+
+//Standard Equal Grid Layout Variables
+@cols: 10;
+@rows: 10;
+@colsfr: (100/@cols)fr; //10% Grid
+@rowsfr: (100/@rows)fr; //10% Grid
+
+
+//Less preprocessor for css files
+@link-color: @accent-1;
+@link-hover-color: darken(@link-color, 10%);
+
+@widget-color: @matte;
+@widget-hover-color:darken(@widget-color, 10%);
+
+@standard-button: @matte-grey;
+@standard-button-hover:darken(@matte-grey, 10%);
+
+@color-button:@green;
+@color-button-hover:darken(@green,10%);
+
+@row-highlight-color:@matte-grey;
+@row-item-color:@matte;
+
+
+@font-face{
+    font-family: 'BLMelodyRegular';
+    src: url('../fonts/Melody/BLMelody-Light.woff2') format('woff2');
+}
+
+
+@font-face{
+    font-family: 'Latenight';
+    src: url('../fonts/latenight/latenight-Regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialiconssharp/v109/oPWQ_lt5nv4pWNJpghLP75WiFR4kLh3kvmvRImcycg.woff2) format('woff2');
+  }
+  
+
+
+//We want to fix the container to the page size
+html, body{
+    font-family: 'BLMelodyRegular', sans-serif;
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+}
+
+
+//Text Styles
+
+h1{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 2.2em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+h2{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 2.0em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+h3{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 1.8em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+h4{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 1.6em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+h5{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 1.4em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+h6{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 1.2em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+
+p{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 1.2em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.small-text{
+    font-size:0.8em;
+}
+
+.med-text{
+    font-size:1.1em;
+}
+
+.large-text{
+    font-size:1.6em;
+}
+
+
+.caption{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size: 0.8em;
+    font-weight: 300;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+
+.hidden{
+    display:none;
+}
+
+
+
+//Icon Additives use .material-icons-sharp class and 'Material Icons Sharp' for font usage
+
+.ico{
+font-family: 'Icons';
+font-weight: normal;
+font-style: normal;
+font-size: 24px;
+line-height: 1;
+letter-spacing: normal;
+text-transform: none;
+display: inline-block;
+white-space: nowrap;
+word-wrap: normal;
+direction: ltr;
+-moz-font-feature-settings: 'liga';
+-moz-osx-font-smoothing: grayscale;
+cursor:pointer;
+}
+  
+.ico-info{
+    color:@blue;
+}
+.ico-danger{
+    color:@red;
+}
+.ico-valid{
+    color:@green;
+}
+.ico-std{
+    color:@light;
+}
+
+//Default Grid - Cols with auto rows
+.grid{
+    display:grid;
+    grid-template-columns: repeat(@cols, @colsfr);
+    grid-auto-rows:minmax(100px,auto);
+    gap:10px;
+}
+
+.grid-row-based{
+    display:grid;
+    grid-template-rows:repeat(@rows,@rowsfr);
+}
+
+.form-row-label{
+    grid-column: 1/4;
+}
+
+.form-row-input{
+    grid-column: 4/10;
+}
+
+
+
+//Flex Content 
+.flex-row{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+
+    .flex-item{
+        flex: 0 1 auto
+    }
+}
+
+.flex-row-center{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    justify-content:center;
+    align-items:stretch;
+
+    .flex-item{
+        flex: 0 1 auto
+    }
+}
+
+
+.flex_col{
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+
+    .flex-item{
+        flex: 0 1 auto
+    }
+}
+
+.compress{
+    width:80%;
+}
+
+.compress-light{
+    width:90%;
+}
+
+.compress-med{
+    width:75%;
+}
+
+.compress-heavy{
+    width:60%;
+}
+
+.compress-extreme{
+    width:40%;
+}
+
+
+//Single Centered Presentation Display
+.centered-div{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    .flex-item{
+        flex: 0 1 auto
+    }
+
+    .centered-content{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+}
+
+.justify-center{
+    justify-content:center;
+    text-align: center;
+}
+
+.align-content-center{
+    margin:auto;
+    text-align: center;
+}
+
+
+//Padding Properties
+.pad-light{
+    padding: 10px;
+}
+
+.pad-heavy{
+    padding: 20px;
+}
+
+
+.marg-light{
+    margin: 10px;
+}
+
+.marg-heavy{
+    margin: 20px;
+}
+
+
+//Form Styles
+.field{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size:1.2em;
+}
+
+label{
+    font-family: 'BLMelodyRegular', sans-serif;
+    font-size:1.1em;
+    font-weight:bold;
+}
+
+input[type=text]{
+    background-color: @matte;
+    color:@light;
+    font-size:1.5em;
+    border-width: 1px;
+    border-color:@matte-grey;
+    font-weight:lighter;
+}
+
+input[type=text]:focus{
+    border-color:@light;
+}
+
+input[type=password]{
+    background-color: @matte;
+    color:@light;
+    font-size:1.5em;
+    border-width: 1px;
+    border-color:@matte-grey;
+    font-weight:lighter;
+}
+
+
+input[type=password]:focus{
+    border-color:@light-grey;
+}
+
+input[type=submit]{
+
+}
+
+input[type=submit]:hover{
+
+}
+
+input[type=submit]:active{
+
+}
+
+input[type=button]{
+
+}
+
+input[type=button]:hover{
+   
+}
+
+input[type=button]:active{
+  
+}
+
+input[type=checkbox]{}
+ 
+
+input[type=radio]{
+ 
+}
+
+input[type=number]{
+
+}
+
+input[type=date]{
+ 
+}
+
+input[type=time]{
+  
+}
+
+input[type=datetime]{
+   
+}
+
+input[type=datetime-local]{
+  
+}
+
+input[type=month]{
+
+}
+
+input[type=week]{
+   
+}
+
+input[type=email]{
+   
+}
+
+input[type=url]{
+  
+}
+
+
+
+//-------- Button Styles ---------//
+
+
+
+.btn-primary{
+    background-color: @matte;
+    color:@light;
+    border-color:@light;
+    border-width:2px;
+    border:solid;
+    cursor:pointer;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.btn-primary:hover{
+    background-color: lighten(@matte, 90%);
+    color:darken(@light, 90%);
+}
+
+
+.btn-alt{
+    background-color: @matte-grey;
+    color:@night;
+    cursor:pointer;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.btn-alt:hover{
+    background-color: darken(@matte-grey, 90%);
+    color:lighten(@night, 90%);
+}
+
+.btn-danger{
+    background-color: @matte;
+    color:@red;
+    border-color:@light;
+    border-width:2px;
+    border:solid;
+    cursor:pointer;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.btn-danger:hover{
+    background-color:lighten(@matte,90%);
+    color:darken(@red,90%);
+}
+
+.btn-info{
+    background-color: @matte;
+    color:@blue;
+    cursor:pointer;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.btn-info:hover{
+    background-color:lighten(@matte,90%);
+    color:darken(@blue,90%);
+}
+
+
+
+
+
+
+
+
+//-------COLOR STYLES-----//
+.dark_theme{
+    background-color: @matte;
+    color:#fff;
+}
+
+.light_theme{
+    background-color: @light;
+    color:#000; 
+}
+
+.dark{
+  background-color: @night;
+  color:#fff;
+} 
+.dark-text{
+    color:@matte;
+}
+.night{
+  background-color:@night;
+}
+.night-text{
+  color:@night;
+}
+
+.light{
+  background-color:@light;
+}
+
+.light-text{
+    color:@light;
+}
+
+.accent-1{
+    background-color:@accent-1;
+}
+
+.accent-1-text{
+   color:@accent-1;
+}
+
+.accent-2{
+    background-color:@accent-2;
+}
+
+.accent-2-text{
+    color:@accent-2;
+}
+
+.white{
+  background-color:@white;
+}
+
+.black{
+    background-color:@matte;
+    color:#fff;
+}
+
+.black-text{
+  color:#000;
+}
+
+
+
+//--------LINK STYLES---------//
+
+.header-link{
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 300;
+    text-decoration: none;
+    margin-right: 20px;
+    font-stretch:expanded;
+    font-family: 'Roboto', sans-serif;
+}
+
+.header-link:hover{
+    font-weight:500;
+    text-decoration: none;
+}
+
+
+
+

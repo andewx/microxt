@@ -49,11 +49,20 @@ type SessionObject struct {
 	Terminal      string      `json:"terminal"`
 	ParamsRadar   RadarParams `json:"paramsradar"`
 	RadarData     *RadarData  `json:"radardata"`
-
+	Devices       []*Device   `json:"devices"`
 	//private
 	logging *Logging
 }
 
 func NewSessionObject() *SessionObject {
-	return &SessionObject{ActiveView: "login", ActiveToolbar: "login", ActiveDevice: "login", ActiveNav: "login", Terminal: "login", ParamsRadar: RadarParams{}, RadarData: NewRadarData(), logging: NewLogging()}
+	return &SessionObject{ActiveView: "Provision", ActiveToolbar: "config", ActiveDevice: "none", FirstName: "DieselX", LastName: "User", ActiveNav: "config", Terminal: "shell", ParamsRadar: RadarParams{}, RadarData: NewRadarData(), Devices: make([]*Device, 0), logging: NewLogging()}
+}
+
+type Device struct {
+	ID     int64  `json:"deviceid"`
+	Name   string `json:"devicename"`
+	IP     string `json:"deviceip"`
+	Port   int    `json:"deviceport"`
+	Driver string `json:"devicedriver"`
+	Status int    `json:"devicestatus"`
 }

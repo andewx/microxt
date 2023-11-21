@@ -136,32 +136,32 @@ func (p *AirApplication) SendCredentials(ssid string, password string, session *
 				err = device.Write(net.SSID_CHARACTERISTIC, []byte(ssid))
 				err = device.Write(net.PASS_CHARACTERISTIC, []byte(password))
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "$bluetoothConnected"
+				req.Extensions["name"] = "@bluetoothConnected"
 				req.Extensions["connected"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 				done = true
 			} else if msg == net.DEVICE_DISCONNECTED {
 				//Send endpoint message to the application
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "$bluetoothDisconnected"
+				req.Extensions["name"] = "@bluetoothDisconnected"
 				req.Extensions["disconnected"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.DEVICE_SCANNING {
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "$bluetoothScanning"
+				req.Extensions["name"] = "@bluetoothScanning"
 				req.Extensions["scanning"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.DEVICE_ON {
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "$bluetoothOn"
+				req.Extensions["name"] = "@bluetoothOn"
 				req.Extensions["valid"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.NO_DEVICE {
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "$bluetoothOn"
+				req.Extensions["name"] = "@bluetoothOn"
 				req.Extensions["valid"] = "false"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 			}

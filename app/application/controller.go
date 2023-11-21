@@ -15,7 +15,7 @@ type DomElement struct {
 
 // Responds to a @scaffold request
 func ScaffoldController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@dom", session)
+	req := NewRequest("@endpoint", session)
 	html := &templates.StringWriter{Str: ""}
 	tmpl := app.GetTemplate(session.state.ActiveView)
 	var msg []byte
@@ -26,6 +26,7 @@ func ScaffoldController(params map[string]string, session *Session, app Applicat
 		fmt.Printf("Failed to find template %s\n", session.state.ActiveView)
 	}
 
+	req.Extensions["name"] = "@dom"
 	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#root"}}
 
 	//Send session request information to electron

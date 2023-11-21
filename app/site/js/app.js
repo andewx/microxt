@@ -2,8 +2,14 @@ var global_session = new Session()
 var application = new Sharp(global_session)
 application.init()
 
-application.addEndpoint("wifi", application.wifi)
-application.addEndpoint("$bluetoothOn", application.bluetooth)
-application.addEndpoint("$bluetoothScanning", application.bluetoothScan)
-application.addEndpoint("$bluetoothDisconnected", application.bluetoothDisconnected)
-application.addEndpoint("$bluetoothConnected", application.bluetoothConnected)
+//Defines API Shape for JS Enpoint requests to TCP JSON Caller
+//JSON Message Formats Ensure Extensible Core Routing Protocols can be adapted
+application.addEndpoint("@wifi", endpointWifiValid)
+application.addEndpoint("@bluetoothOn", endpointHasBluetooth)
+application.addEndpoint("@bluetoothScanning", endpointBluetoothScanning)
+application.addEndpoint("@bluetoothDisconnected", endpointBluetoothDisconnected)
+application.addEndpoint("@bluetoothConnected", endpointHasBluetooth)
+application.addEndpoint("@dom", endpointDom)
+application.addEndpoint("@error", endpointError)
+application.addEndpoint("@recieveFrame", endpointRecieveFrame)
+

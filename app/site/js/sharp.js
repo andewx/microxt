@@ -62,30 +62,12 @@ class Sharp{
         this.endpoints.get(name)(message)
     }
 
-    sessionAction(json){
+    sessionRead(json){
         for(let key in json.session){
             this.session.set(key, json.session[key])
         }
     }
 
-    scaffold(json){
-        for(let key in json.scaffold){
-            let scaffold = json.scaffold[key]
-            let element = document.createElement(scaffold.tag)
-            element.id = scaffold.id
-            element.className = scaffold.class
-            element.innerHTML = scaffold.html
-            document.body.appendChild(element)
-        }
-    }
-
-    error(json){   
-        console.log(json)
-    }
-
-    radardata(json){
-        console.log(json)
-    }
 
     //setup the app by attaching component update hooks to their respective elements
     init(){
@@ -120,21 +102,12 @@ class Sharp{
                     }
                     //Process all messages from GO - we expect JSON format
                     const json_message = JSON.parse(message)
-                    if(json_message.type === "@dom"){
-                        json_message.extensions.selectors.forEach((item)=>{
-                            //Set the inner html of the element
-                            $(item.selector).html(item.html)
-                        })
+                    if(json_message.type === "@endpoint"){
+                        this.call(json_message.extensions.name, json_message)
                     }else if(json_message.type === "@error"){
                         console.log(json_message.extensions.error)
                     }else if(json_message.type === "@session"){
-                        global_session.read(json_message)
-                    }else if(json_message.type === "@scaffold"){
-                        this.scaffold(json_message)
-                    }else if(json_message.type === "@radardata"){
-                        this.radardata(json_message)
-                    }else if(json_message.type === "@endpoint"){
-                        this.call(json_message.extensions.name, json_message)
+                        this.sessionRead(json_message)
                     }
                 })
 

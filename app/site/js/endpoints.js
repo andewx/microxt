@@ -51,3 +51,18 @@ function endpointBluetoothDisconnected(message){
     }
 }
 
+function endpointDom(message){
+    json_message.extensions.selectors.forEach((item)=>{
+        //Set the inner html of the element
+        $(item.selector).html(item.html)
+    })
+}
+
+function endpointError(message){
+    console.log(message)
+}
+
+function endpointRecieveFrame(message){
+
+}
+

@@ -61,10 +61,14 @@ func ConnectDeviceController(params map[string]string, session *Session, app App
 // Responds to a @provision request - for this we write the credentials over bluetooth connection
 func ProvisionController(params map[string]string, session *Session, app Application) {
 	ssid := params["ssid"]
-	pass := params["pass"]
+	pass := params["password"]
+	fmt.Printf("Route Parameters %v\n", params)
 	var err error
 	if ssid != "" && pass != "" {
+		fmt.Printf("Provisioning device %s with ssid %s and pass %s\n", session.UID, ssid, pass)
 		err = app.SendCredentials(ssid, pass, session) //Blocking call waits on a bluetooth connection
+	} else {
+		return
 	}
 
 	if err != nil {

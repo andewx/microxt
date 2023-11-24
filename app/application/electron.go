@@ -117,8 +117,12 @@ func LaunchElectron(status chan int, app Application) error {
 				}
 			}
 			route := el.App.GetRoute(request.RouteKey)
+			fmt.Printf("Calling route %s\n", request.RouteKey)
 			if route != nil {
+				fmt.Printf("Route found\n")
 				route.Handler(request.Paramaters, session, el.App)
+			} else {
+				fmt.Printf("Route not found\n")
 			}
 		}
 		return nil

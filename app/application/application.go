@@ -1,6 +1,7 @@
 package application
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 
@@ -128,11 +129,13 @@ func (p *AirApplication) SendCredentials(ssid string, password string, session *
 	var err error
 	//Send SSID/Password as raw byte messages to the connection in succession
 	device, err := net.NewBluetoothConnection()
+	fmt.Printf("BLE Blueooth Scanning\n")
+	go device.ScanUUID(net.UUID)
 	if err != nil {
 		done := false
 		for !done {
 			msg := <-device.Status
-			if msg == net.DEVICE_CONNECTED {
+			if msg == net.BLE_CONNECTED {
 				err = device.Write(net.SSID_CHARACTERISTIC, []byte(ssid))
 				err = device.Write(net.PASS_CHARACTERISTIC, []byte(password))
 				req := NewRequest("@endpoint", session)
@@ -140,34 +143,48 @@ func (p *AirApplication) SendCredentials(ssid string, password string, session *
 				req.Extensions["connected"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 				done = true
-			} else if msg == net.DEVICE_DISCONNECTED {
+			} else if msg == net.BLE_DISCONNECTED {
 				//Send endpoint message to the application
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothDisconnected"
 				req.Extensions["disconnected"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
-			} else if msg == net.DEVICE_SCANNING {
+			} else if msg == net.BLE_SCANNING {
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothScanning"
 				req.Extensions["scanning"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
-			} else if msg == net.DEVICE_ON {
+			} else if msg == net.BLE_ON {
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothOn"
 				req.Extensions["valid"] = "true"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 
-			} else if msg == net.NO_DEVICE {
+			} else if msg == net.BLE_OFF {
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothOn"
 				req.Extensions["valid"] = "false"
 				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+			} else if msg == net.BLE_FOUND {
+				req := NewRequest("@endpoint", session)
+				req.Extensions["name"] = "@bluetoothFound"
+				req.Extensions["found"] = "true"
+				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+			} else if msg == net.BLE_ERROR {
+				req := NewRequest("@endpoint", session)
+				req.Extensions["name"] = "@bluetoothError"
+				req.Extensions["error"] = "true"
+				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
 			}
 		}
+	} else {
+		fmt.Printf("Failed to connect to bluetooth device %s\n", err.Error())
 	}
+
 	device.Close()
+
 	return err
 }
 

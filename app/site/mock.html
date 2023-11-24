@@ -10,9 +10,9 @@
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
-  <body hx-ext="hx-el" hx-trigger="load" hx-swap="innerHTML" hx-target="body" name="@scaffold" id="root" class="dark_theme">
-    <div class="centered-div">
-        <div class="centered-content">
+  <body hx-ext="hx-el" hx-trigger="load" hx-swap="innerHTML" hx-target="body" name="@scaffold" id="root">
+    <div class="centered-div molten-bg">
+        <div class="centered-content max-width-med">
             <div class="flex-item justify-center">
                 <h1 class="marg-light align-content-center">First things first, Lets setup your AirXT Device</h1>
                 <div class="caption align-content-center marg-heavy">
@@ -29,9 +29,9 @@
                 <form hx-post="/provision" hx-target="#form-submit-feedback" hx-swap="outerHTML">
                     <div class="grid">
                         <label for="ssid" class="form-row-label align-content-center">SSID</label>
-                        <input id="ssid" type="text" class=" validate form-row-input">
+                        <input id="ssid" type="text" class="validate form-row-input marg-heavy">
                         <label class="form-row-label align-content-center" for="password">Password</label>
-                        <input id="pass" type="password" id="password" type="text" class="validate form-row-input">
+                        <input id="pass" type="password" id="password" type="text" class="validate form-row-input marg-heavy">
                     </div>
                     <div class="align-content-center">
                         <div class="flex-row-center">
@@ -58,6 +58,8 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="js/sharp.js"></script>
   <script src= "js/endpoints.js"></script>
+  <script src="js/blue.js"></script>
+  <script src="js/handlers.js"></script>
   <script src="js/app.js"></script>
   <script src="js/effects.js"></script>
 

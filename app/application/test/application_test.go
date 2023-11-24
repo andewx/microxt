@@ -42,4 +42,10 @@ func TestApplicationCreate(t *testing.T) {
 		t.Errorf("Failed to find provision template")
 	}
 
+	//Send Credentials over Bluetooth
+	params := make(map[string]string)
+	params["ssid"] = "test"
+	params["password"] = "test"
+	app.GetRoute("@provision").Handler(params, m, app)
+
 }

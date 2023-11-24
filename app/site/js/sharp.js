@@ -68,63 +68,16 @@ class Sharp{
         }
     }
 
+    request(route, paramaters){
+        return this.session.request(route, paramaters)
+    }
+
 
     //setup the app by attaching component update hooks to their respective elements
     init(){
         //sharp expects that the server will determine the initial state of the application
 
         global_session.set("uid", "0")
-        $(document).ready(function(){
-            htmx.defineExtension('hx-el', {
-                onEvent : function(name,evt){
-                  var msg = {
-                    routekey:name,
-                    sessionkey:global_session.get("uid"),
-                    params:{}, //map[string]string
-                  }
-
-                  if(name === "@provision"){
-                    msg.params["ssid"] = $("#ssid").val()
-                    msg.params["password"] = $("#password").val()
-                  }
-                  astilectron.sendMessage(msg, function(message){
-                    console.log(evt)
-                  })
-                }
-              })
-    
-            //Add the root event listener for all components
-            document.addEventListener("astilectron-ready", function(){
-                astilectron.onMessage(function(message){
-                    console.log(message)
-                    if(message == null){
-                        return
-                    }
-                    //Process all messages from GO - we expect JSON format
-                    const json_message = JSON.parse(message)
-                    if(json_message.type === "@endpoint"){
-                        this.call(json_message.extensions.name, json_message)
-                    }else if(json_message.type === "@error"){
-                        console.log(json_message.extensions.error)
-                    }else if(json_message.type === "@session"){
-                        this.sessionRead(json_message)
-                    }
-                })
-
-                //Make an initial session request to the server expecting @session response
-                console.log(global_session.request("@session", {default:"default"}))
-                astilectron.sendMessage(global_session.request("@session"), function(message){
-                    //During response we request to get the initial view scaffold
-                      astilectron.sendMessage(global_session.request("@scaffold"), function(message){})
-                })
-
-            })
-
-
-            //Register the scaffolding by sending a request to the application
-
-        })
-
     }
 
     event(callback){
@@ -174,3 +127,10 @@ class Stopwatch{
         return false;
     }
 }
+
+const global_session = new Session()
+const sharp = new Sharp(global_session)
+
+document.addEventListener("DOMContentLoaded", function(){
+sharp.init()
+})

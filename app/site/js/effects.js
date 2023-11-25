@@ -1,15 +1,18 @@
 //Effectual functions with jQuery and CSS3
 
 //Pulse Element Text Color
+
+var pulse_factor = 0.0;
+var pulse_factor_step = 0.1;
+
 function pulseTextColor(element, color1, color2, duration) {
     var factor = 0.0;
     var interval = setInterval(function () {
-        var factor = 0.0;
-        var color = r2h(_interpolateColor(h2r(color1), h2r(color2), factor));
+        var color = r2h(_interpolateColor(h2r(color1), h2r(color2), pulse_factor));
         element.css("color", color);
-        factor += 0.1;
-        if (factor > 1.0) {
-            factor = 0.0;
+        pulse_factor += pulse_factor_step;
+        if (pulse_factor > 0.9 || pulse_factor < 0.1) {
+            pulse_factor_step *= -1.0;
         }
     }, duration);
 
@@ -147,63 +150,6 @@ var _interpolateHSL = function(color1, color2, factor) {
   }
   return hsl2rgb(hsl1);
 };
-
-
-(function($) {
-  
-  var $list = $('#list'),
-      $start = $('#start'),
-      $end = $('#end'),
-      $intype = $('input[name="intype"]'),
-      $usehex = $('#usehex');
-
-  // Add li elements between the start and end ones
-  var _createSteps = function(numSteps) {
-    $list.find('li.interim').remove();
-
-    for(var i = 0; i < numSteps; i++) {
-      $end.before('<li class="interim"><span></span></li>');
-    }
-  };
-
-  // Color each li by interpolating between the start and end colors
-  var _styleSteps = function() {
-    var $items = $('li'),
-        scol = h2r($start.find('input').val()),
-        ecol = h2r($end.find('input').val());
-    var fn = '_' + $('input[name="intype"]:checked').val();
-    
-    console.log('fn', fn);
-
-    var factorStep = 1 / ($items.length - 1);
-    $items.each(function(idx) {
-      var icol = window[fn](scol, ecol, factorStep * idx),
-          hcol = r2h(icol);
-
-      $(this).css('background-color', hcol);
-      $(this).find('span').text(hcol);
-    });
-
-  }
-
-  // Re-render on change
-  $('#usehex').on('change', function() {
-    var ct = $('ul input').eq(0).attr('type');
-    var scol = $start.find('input').val(),
-        ecol = $end.find('input').val();
-    
-    $('ul input').attr('type', (ct == 'color') ? 'text' : 'color');
-    
-    $start.find('input').val(scol);
-    $end.find('input').val(ecol);
-  });
-  $('input').not('#usehex').on('change', _styleSteps);
-  $('#numsteps').on('change', function() {
-    _createSteps($(this).val());
-    _styleSteps();
-  }).trigger('change');
-  
-})(jQuery);
 
 
 

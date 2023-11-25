@@ -10,6 +10,15 @@ function handleProvisionRequest(evt){
     })
 }
 
+function handleProvisionCancel(evt){   
+    evt.preventDefault()
+    const msg = sharp.request("@provisionCancel", {})
+    astilectron.sendMessage(msg, function(message){
+        console.log(evt)
+    })
+
+}
+
 
 function handleScaffoldRequest(evt){ 
     evt.preventDefault()

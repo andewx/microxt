@@ -59,7 +59,13 @@ class Sharp{
     }
 
     call(name, message){
-        this.endpoints.get(name)(message)
+        const handler = this.endpoints.get(name)
+        if(handler != null){
+            handler(message)
+        }else{
+            console.log("No handler for endpoint " + name)
+        }
+       return
     }
 
     sessionRead(json){

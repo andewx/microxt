@@ -120,7 +120,7 @@ func LaunchElectron(status chan int, app Application) error {
 			fmt.Printf("Calling route %s\n", request.RouteKey)
 			if route != nil {
 				fmt.Printf("Route found\n")
-				route.Handler(request.Paramaters, session, el.App)
+				go route.Handler(request.Paramaters, session, el.App)
 			} else {
 				fmt.Printf("Route not found\n")
 			}

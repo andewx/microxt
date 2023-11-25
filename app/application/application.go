@@ -1,6 +1,7 @@
 package application
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -28,9 +29,11 @@ type Application interface {
 	GetKeys() Keys
 	SetWindow(*astilectron.Window)
 	ConnectDevice(string) error
-	SendCredentials(string, string, *Session) error
+	BluetoothSend(string, string, *Session) error
+	BluetoothCancel()
 	GetChannel() chan int
 	NewSession() *Session
+	GetState() int
 	Close()
 }
 
@@ -61,6 +64,16 @@ func NewRequest(_type string, sesh *Session) *Request {
 	return &Request{Type: _type, Session: sesh, Extensions: make(map[string]interface{}, 0)}
 }
 
+func (r *Request) JSON() string {
+	var msg []byte
+	var err error
+	msg, err = json.Marshal(r)
+	if err != nil {
+		fmt.Printf("Failed to marshal session request %s\n", err.Error())
+	}
+	return string(msg)
+}
+
 // Air Application
 type AirApplication struct {
 	AppConfig     *models.AppConfig
@@ -69,6 +82,7 @@ type AirApplication struct {
 	TemplateViews map[string]*templates.ApplicationTemplate
 	Connection    *net.TCPConnection
 	Window        *astilectron.Window
+	Bluetooth     *net.BluetoothConnection
 	_state        int
 	DeviceChannel chan int
 }
@@ -81,6 +95,7 @@ func NewAirXTApplication() (*AirApplication, error) {
 	app.Routes = make(map[string]*Route, 0)
 	app.TemplateViews = make(map[string]*templates.ApplicationTemplate, 0)
 	app.DeviceChannel = make(chan int)
+	app.Bluetooth, err = net.NewBluetoothConnection()
 
 	//AddRoutes
 	app.AddRoute("@provision", &Route{Handler: ProvisionController})
@@ -91,6 +106,7 @@ func NewAirXTApplication() (*AirApplication, error) {
 	app.AddRoute("@terminalinput", &Route{Handler: TerminalInputController})
 	app.AddRoute("@radardata", &Route{Handler: RadarDataController})
 	app.AddRoute("@scaffold", &Route{Handler: ScaffoldController})
+	app.AddRoute("@provisionCancel", &Route{Handler: ProvisionCancelController})
 
 	//Add Templates
 	app.AddTemplate("Provision", templates.NewTemplate("Provision", common.ProjectRelativePath("microxt/app/templates/provision.gohtml")))
@@ -125,67 +141,78 @@ func (p *AirApplication) SetWindow(window *astilectron.Window) {
 	p.Window = window
 }
 
-func (p *AirApplication) SendCredentials(ssid string, password string, session *Session) error {
+func (p *AirApplication) GetState() int {
+	return p._state
+}
+
+func (p *AirApplication) BluetoothSend(ssid string, password string, session *Session) error {
 	var err error
 	//Send SSID/Password as raw byte messages to the connection in succession
-	device, err := net.NewBluetoothConnection()
 	fmt.Printf("BLE Blueooth Scanning\n")
-	go device.ScanUUID(net.UUID)
-	if err != nil {
+	go p.Bluetooth.ScanUUID(net.UUID)
+	if err == nil {
 		done := false
 		for !done {
-			msg := <-device.Status
+			msg := <-p.Bluetooth.Status
 			if msg == net.BLE_CONNECTED {
-				err = device.Write(net.SSID_CHARACTERISTIC, []byte(ssid))
-				err = device.Write(net.PASS_CHARACTERISTIC, []byte(password))
+				err = p.Bluetooth.Write(net.SSID_CHARACTERISTIC, []byte(ssid))
+				err = p.Bluetooth.Write(net.PASS_CHARACTERISTIC, []byte(password))
+
+				if err != nil {
+					p._state = net.BLE_SUCCESS
+				}
+
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothConnected"
 				req.Extensions["connected"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 				done = true
 			} else if msg == net.BLE_DISCONNECTED {
 				//Send endpoint message to the application
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothDisconnected"
 				req.Extensions["disconnected"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.BLE_SCANNING {
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothScanning"
 				req.Extensions["scanning"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.BLE_ON {
 				req := NewRequest("@endpoint", session)
 				req.Extensions["name"] = "@bluetoothOn"
 				req.Extensions["valid"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 			} else if msg == net.BLE_OFF {
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "@bluetoothOn"
+				req.Extensions["name"] = "@bluetoothOff"
 				req.Extensions["valid"] = "false"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
+				p.Bluetooth.Close()
+				done = true
 			} else if msg == net.BLE_FOUND {
-				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "@bluetoothFound"
-				req.Extensions["found"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				fmt.Printf("Found device\n")
 			} else if msg == net.BLE_ERROR {
 				req := NewRequest("@endpoint", session)
-				req.Extensions["name"] = "@bluetoothError"
+				req.Extensions["name"] = "@error"
 				req.Extensions["error"] = "true"
-				p.GetElectron().SendMessage("@endpoint", func(m *astilectron.EventMessage) {})
+				p.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
+				p.Bluetooth.Close()
+				done = true
 			}
 		}
 	} else {
 		fmt.Printf("Failed to connect to bluetooth device %s\n", err.Error())
 	}
 
-	device.Close()
-
 	return err
+}
+
+func (p *AirApplication) BluetoothCancel() {
+	p.Bluetooth.Status <- net.BLE_OFF
 }
 
 func (p *AirApplication) ConnectDevice(session_id string) error {

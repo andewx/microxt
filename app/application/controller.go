@@ -1,10 +1,10 @@
 package application
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/andewx/microxt/app/templates"
+	"github.com/andewx/microxt/net"
 	"github.com/asticode/go-astilectron"
 )
 
@@ -18,8 +18,7 @@ func ScaffoldController(params map[string]string, session *Session, app Applicat
 	req := NewRequest("@endpoint", session)
 	html := &templates.StringWriter{Str: ""}
 	tmpl := app.GetTemplate(session.state.ActiveView)
-	var msg []byte
-	var err error
+
 	if tmpl != nil {
 		tmpl.Execute(session.state, html)
 	} else {
@@ -30,28 +29,16 @@ func ScaffoldController(params map[string]string, session *Session, app Applicat
 	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#root"}}
 
 	//Send session request information to electron
-	msg, err = json.Marshal(req)
-	if err != nil {
-		fmt.Printf("Failed to marshal session request %s\n", err.Error())
-
-	} else {
-		app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-	}
+	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 }
 
 func ConnectDeviceController(params map[string]string, session *Session, app Application) {
 	err := app.ConnectDevice(session.UID)
 	req := NewRequest("@error", session)
-	var msg []byte
 	if err != nil {
 		req.Extensions["error"] = "Failed to connect to device"
-		msg, err = json.Marshal(req)
-		if err != nil {
-			app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-		} else {
-			fmt.Printf("Failed to marshal error request %s\n", err.Error())
-		}
+		app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 	} else {
 		session.state.ActiveView = "Ide"
 		ScaffoldController(params, session, app)
@@ -64,42 +51,30 @@ func ProvisionController(params map[string]string, session *Session, app Applica
 	pass := params["password"]
 	fmt.Printf("Route Parameters %v\n", params)
 	var err error
-	if ssid != "" && pass != "" {
-		fmt.Printf("Provisioning device %s with ssid %s and pass %s\n", session.UID, ssid, pass)
-		err = app.SendCredentials(ssid, pass, session) //Blocking call waits on a bluetooth connection
-	} else {
-		return
-	}
+
+	fmt.Printf("Provisioning device %s with ssid %s and pass %s\n", session.UID, ssid, pass)
+	err = app.BluetoothSend(ssid, pass, session) //Blocks until connection is established
 
 	if err != nil {
-		var msg []byte
 		req := NewRequest("@error", session)
 		req.Extensions["error"] = "Failed to connect to device"
-		msg, err = json.Marshal(req)
-		if err != nil {
-			app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-		} else {
-			fmt.Printf("Failed to marshal error request %s\n", err.Error())
-		}
+		app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 	} else {
-		session.state.ActiveView = "Ide"
-		ScaffoldController(params, session, app)
+		if app.GetState() == net.BLE_SUCCESS {
+			session.state.ActiveView = "Ide"
+			ScaffoldController(params, session, app)
+		}
 	}
+}
+
+func ProvisionCancelController(params map[string]string, session *Session, app Application) {
+	app.BluetoothCancel()
 }
 
 // Responds to a @session request - this should establish a new session with the electron caller
 func SessionController(params map[string]string, session *Session, app Application) {
-	var msg []byte
-	var err error
 	req := NewRequest("@session", session)
-	msg, err = json.Marshal(req)
-	if err != nil {
-		fmt.Printf("Failed to marshal session request %s\n", err.Error())
-
-	} else {
-		app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-	}
-
+	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 }
 
 // Responds to a @devicepanel request
@@ -107,8 +82,7 @@ func DevicePanelController(params map[string]string, session *Session, app Appli
 	req := NewRequest("@dom", session)
 	html := &templates.StringWriter{Str: ""}
 	tmpl := app.GetTemplate("Devices")
-	var msg []byte
-	var err error
+
 	if tmpl != nil {
 		tmpl.Execute(session.state, html)
 	} else {
@@ -117,14 +91,7 @@ func DevicePanelController(params map[string]string, session *Session, app Appli
 
 	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
 
-	//Send session request information to electron
-	msg, err = json.Marshal(req)
-	if err != nil {
-		fmt.Printf("Failed to marshal session request %s\n", err.Error())
-
-	} else {
-		app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-	}
+	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 }
 
@@ -133,8 +100,7 @@ func NavTabsController(params map[string]string, session *Session, app Applicati
 	req := NewRequest("@dom", session)
 	html := &templates.StringWriter{Str: ""}
 	tmpl := app.GetTemplate("Nav")
-	var msg []byte
-	var err error
+
 	if tmpl != nil {
 		tmpl.Execute(session.state, html)
 	} else {
@@ -144,13 +110,7 @@ func NavTabsController(params map[string]string, session *Session, app Applicati
 	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
 
 	//Send session request information to electron
-	msg, err = json.Marshal(req)
-	if err != nil {
-		fmt.Printf("Failed to marshal session request %s\n", err.Error())
-
-	} else {
-		app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-	}
+	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 }
 
@@ -159,8 +119,7 @@ func TerminalDisplayController(params map[string]string, session *Session, app A
 	req := NewRequest("@dom", session)
 	html := &templates.StringWriter{Str: ""}
 	tmpl := app.GetTemplate("Terminal")
-	var msg []byte
-	var err error
+
 	if tmpl != nil {
 		tmpl.Execute(session.state, html)
 	} else {
@@ -170,13 +129,7 @@ func TerminalDisplayController(params map[string]string, session *Session, app A
 	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
 
 	//Send session request information to electron
-	msg, err = json.Marshal(req)
-	if err != nil {
-		fmt.Printf("Failed to marshal session request %s\n", err.Error())
-
-	} else {
-		app.GetElectron().SendMessage(string(msg), func(m *astilectron.EventMessage) {})
-	}
+	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
 
 }
 

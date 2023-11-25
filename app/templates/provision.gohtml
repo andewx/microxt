@@ -7,10 +7,10 @@
                 </div>
                     <div class="flex-row-center">
                         <div class="flex-row marg-heavy compress">
-                            <div class="flex-item"><span class="ico ico-info" alt="Bluetooth Device">&#xe1a7;</span></div>
-                            <div class="flex-item"><span class="ico ico-std" alt="Bluetooth Searching">&#xe1aa;</span></div>
-                            <div class="flex-item"><span class="ico ico-std" alt="Bluetooth Connected">&#xe1a8;</span></div>
-                            <div class="flex-item"><span class="ico ico-std" alt="Bluetooth Disconnected">&#xe1a9;</span></div>
+                            <div class="flex-item"><span id="bluetooth-service" class="ico ico-std" alt="Bluetooth Device">&#xe1a7;</span></div>
+                            <div class="flex-item"><span id="bluetooth-scan" class="ico ico-std" alt="Bluetooth Searching">&#xe1aa;</span></div>
+                            <div class="flex-item"><span id="bluetooth-connect" class="ico ico-std" alt="Bluetooth Connected">&#xe1a8;</span></div>
+                            <div class="flex-item"><span id="bluetooth-disconnect" class="ico ico-std" alt="Bluetooth Disconnected">&#xe1a9;</span></div>
                         </div>
                     </div>
                 <form hx-post="/provision" hx-target="#form-submit-feedback" hx-swap="outerHTML">
@@ -24,7 +24,7 @@
                         <div class="flex-row-center">
                             <div class="flex-row marg-heavy compress-extreme">
                                 <input type="submit" bluejs="provisionSubmit" bluejs-trigger="click" bluejs-binding="provision" class="flex-item btn-primary small-text" value="Validate">
-                                <input type="submit" class="flex-item btn-danger small-text" value="Cancel">
+                                <input type="submit" bluejs="provisionCancel" bluejs-trigger="click" bluejs-binding="provisionCancel" class="flex-item btn-danger small-text" value="Cancel">
                                 <div class="flex-item hidden validate-feedback"><span class="ico ico-valid" alt="Submitted">&#xe86c;</span></div>
                             </div>
                         </div>

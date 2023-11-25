@@ -18,6 +18,7 @@ const (
 	BLE_DISCONNECTED    = 5
 	BLE_ERROR           = 6
 	BLE_FOUND           = 7
+	BLE_SUCCESS         = 8
 	MAX_BLE_BYTES       = 96
 )
 
@@ -41,7 +42,6 @@ func NewBluetoothConnection() (*BluetoothConnection, error) {
 	var err error
 	var conn = &BluetoothConnection{}
 	conn.Status = make(chan int)
-	must("enable BLE stack", adapter.Enable())
 	conn.services = make(map[string]*bluetooth.DeviceService)
 	conn.characteristics = make(map[string]*BLECharacteristic)
 	conn.local = adapter
@@ -51,6 +51,15 @@ func NewBluetoothConnection() (*BluetoothConnection, error) {
 // Available returns a list of available devices
 func (conn *BluetoothConnection) Scan() error {
 	var err error
+
+	err = adapter.Enable()
+	if err != nil {
+		fmt.Printf("Failed to enable bluetooth: %v\n", err)
+		return err
+	}
+
+	conn.Status <- BLE_ON
+
 	conn.Status <- BLE_SCANNING
 	err = adapter.Scan(func(adapter *bluetooth.Adapter, result bluetooth.ScanResult) {
 		conn.available = append(conn.available, result)
@@ -62,6 +71,16 @@ func (conn *BluetoothConnection) ScanUUID(uuid string) error {
 	var err error
 	b_uuid, err := bluetooth.ParseUUID(uuid)
 	must("parse UUID", err)
+
+	err = adapter.Enable()
+	if err != nil {
+		fmt.Printf("Failed to enable bluetooth: %v\n", err)
+		conn.Status <- BLE_ERROR
+		return err
+	}
+
+	conn.Status <- BLE_ON
+
 	conn.Status <- BLE_SCANNING
 	err = adapter.Scan(func(adapter *bluetooth.Adapter, result bluetooth.ScanResult) {
 		if result.AdvertisementPayload.HasServiceUUID(b_uuid) {
@@ -71,14 +90,17 @@ func (conn *BluetoothConnection) ScanUUID(uuid string) error {
 			params := bluetooth.ConnectionParams{
 				ConnectionTimeout: 200, //2000ms
 			}
-			conn.Connect(0, params)
+			err = conn.Connect(0, params)
 		}
 	})
 	return err
 }
 
 func (conn *BluetoothConnection) Close() {
-	conn.remote.Disconnect()
+	if conn.remote != nil {
+		conn.remote.Disconnect()
+	}
+	conn.local.StopScan()
 }
 
 func (conn *BluetoothConnection) Connect(device int, params bluetooth.ConnectionParams) error {
@@ -86,7 +108,7 @@ func (conn *BluetoothConnection) Connect(device int, params bluetooth.Connection
 	if device < 0 || device >= len(conn.available) {
 		return err
 	}
-	conn.local.StopScan()
+	// conn.local.StopScan()
 	selected := conn.available[device]
 	conn.Status <- BLE_CONNECTING
 	conn.remote, err = adapter.Connect(selected.Address, params)

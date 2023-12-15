@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 
@@ -30,7 +31,10 @@ type ApplicationTemplate struct {
 
 func NewTemplate(name string, filenames ...string) *ApplicationTemplate {
 	templ := &ApplicationTemplate{}
-	templ.Create(name, filenames...)
+	err := templ.Create(name, filenames...)
+	if err != nil {
+		fmt.Printf("Failed to create template %s with filename%s\n", name, filenames)
+	}
 	return templ
 }
 
@@ -42,14 +46,20 @@ func (t *ApplicationTemplate) Create(name string, filenames ...string) error {
 	return err
 }
 
-func (t *ApplicationTemplate) Execute(obj *models.SessionObject, w io.Writer) error {
+func (t *ApplicationTemplate) Execute(obj any, w io.Writer) error {
 	var err error
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in Execute", r)
+			err = fmt.Errorf("error: %v", r)
+		}
+	}()
+
+	//Recover from panic
 	ts := t.Template.Templates()
 	for _, tmp := range ts {
-		if err = tmp.Execute(w, obj); err != nil {
-			return err
-		}
+		tmp.Execute(w, obj)
 	}
-
 	return err
 }

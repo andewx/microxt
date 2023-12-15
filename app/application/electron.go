@@ -14,16 +14,17 @@ import (
 const EVENT = 2
 const EXIT = 1
 const START = 12
+const READY = 11
 
 type ElectronApp struct {
 	Electron *astilectron.Astilectron
 	Window   *astilectron.Window
-	App      Application
+	App      *Application
 	Finished bool
 	Port     int
 }
 
-func NewElectron(application Application) (*ElectronApp, error) {
+func NewElectron(application *Application) (*ElectronApp, error) {
 	var myApp = new(ElectronApp)
 	var err error
 	myApp.Port = 8000
@@ -47,7 +48,7 @@ func NewElectron(application Application) (*ElectronApp, error) {
 }
 
 // Launches electron completely as its own process
-func LaunchElectron(status chan int, app Application) error {
+func LaunchElectron(status chan int, app *Application) error {
 	el, err1 := NewElectron(app)
 	if err1 != nil {
 		fmt.Printf("Error Initializing \n%s", err1)
@@ -96,34 +97,21 @@ func LaunchElectron(status chan int, app Application) error {
 
 	el.Window.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		var s string
-
 		m.Unmarshal(&s)
 		fmt.Printf("Application recieved message:\n%s\n", s)
 		request := models.NewJsonRequest(s)
 		var session *Session
 		if request != nil {
-
-			if request.SessionKey == "0" {
-				session = el.App.NewSession()
-			} else {
-				session = el.App.GetSession(request.SessionKey)
-				if session == nil {
-					fmt.Printf("Session not found for key %s\n", request.SessionKey)
-					//Print all sessions
-					for k := range el.App.GetKeys() {
-						fmt.Printf("Session %s\n", k)
-					}
-					return nil
+			session = el.App.GetSession(request.SessionKey)
+			if session == nil {
+				fmt.Printf("Session not found for key %s\n", request.SessionKey)
+				//Print all sessions
+				for k := range el.App.GetKeys() {
+					fmt.Printf("Session %s\n", k)
 				}
+				return nil
 			}
-			route := el.App.GetRoute(request.RouteKey)
-			fmt.Printf("Calling route %s\n", request.RouteKey)
-			if route != nil {
-				fmt.Printf("Route found\n")
-				go route.Handler(request.Paramaters, session, el.App)
-			} else {
-				fmt.Printf("Route not found\n")
-			}
+			el.App.Controller(request.Controller).Endpoint(request.RouteKey, request.Paramaters, session, el.App)
 		}
 		return nil
 	})
@@ -161,6 +149,7 @@ func LaunchElectron(status chan int, app Application) error {
 		el.App.Close()
 		return
 	})
+	status <- READY
 	el.Electron.Wait()
 	status <- EXIT
 	return nil

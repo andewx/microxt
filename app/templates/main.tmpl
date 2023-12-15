@@ -1,0 +1,38 @@
+  <!----Nav-->
+<canvas id="canvas">
+<div id="properties" class="floating panel">
+  <div id="device-properties">
+    <div class="item-group">
+    <div class="item-group-name">Device</div>
+     {{range .Devices}}
+       <div class="item">
+        {{.Name}}
+       </div>
+     {{end}}
+    </div>
+  </div>
+<div>
+<div id="info" class="floating panel">
+  <div id="flex-row info-content">
+    <div id="notification"></div>
+    <div id="info-content">Hello {{.Session.FirstName}} {{.Session.LastName}}</div>
+  </div>
+</div>
+<div id="controls" class="floating panel">
+  <div class="flex-row">
+    <div id="timeline">
+      <div id="time" class="tool-item"></div>
+      <div id="play" class="tool-item"></div>
+      <div id="stop" class="tool-item"></div>
+    </div>
+    <div id="tools" class="flex-row">
+      <div id="range" class="tool-item"></div>
+      <div id="vel" class="tool-item"></div>
+      <div id="velmax" class="tool-item"></div>
+    </div>
+  </div>
+<div>
+</canvas>
+<div id="rightclickmenu" class="floating panel">
+  <div id="rightclickmenu-content"></div>
+</div>

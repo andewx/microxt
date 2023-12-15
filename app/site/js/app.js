@@ -7,6 +7,7 @@ sharp.addEndpoint("@bluetoothScanning", endpointBluetoothScanning)
 sharp.addEndpoint("@bluetoothDisconnected", endpointBluetoothDisconnected)
 sharp.addEndpoint("@bluetoothConnected", endpointBluetoothConnected)
 sharp.addEndpoint("@bluetoothOff", endpointBluetoothOff)
+sharp.addEndpoint("@bluetoothSuccess", endpointBluetoothSuccess)
 sharp.addEndpoint("@dom", endpointDom)
 sharp.addEndpoint("@error", endpointError)
 sharp.addEndpoint("@recieveFrame", endpointRecieveFrame)
@@ -14,11 +15,12 @@ sharp.addEndpoint("@bluetoothCancel", endpointBluetoothOff)
 bluejs.addBinding("provision", {}, handleProvisionRequest)
 bluejs.addBinding("scaffold",{}, handleScaffoldRequest)
 bluejs.addBinding("provisionCancel",{}, handleProvisionCancel)
+bluejs.addBinding("userSubmit",{}, handleUserSubmit)
+bluejs.addBinding("userCancel",{}, handleUserCancel)
 
 
 
 $(document).ready(function(){
-
     document.addEventListener("astilectron-ready", function(){
         astilectron.onMessage(function(message){
             console.log(message)
@@ -39,16 +41,6 @@ $(document).ready(function(){
                 sharp.sessionRead(json_message)
             }
         })
-
-        
-        //Make an initial session request to the server expecting @session response
-        console.log(global_session.request("@session", {default:"default"}))
-        astilectron.sendMessage(global_session.request("@session"), function(message){
-            //During response we request to get the initial view scaffold
-            astilectron.sendMessage(global_session.request("@scaffold"), function(message){})
-        })
-       
-
     })
     //Register the scaffolding by sending a request to the sharp
 

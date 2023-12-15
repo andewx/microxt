@@ -13,7 +13,10 @@ function endpointWifiValid(message){
     }
 }
 
-
+function endpointBluetoothSuccess(message){
+    $("#bluetooth-success").removeClass("ico-std")
+    $("#bluetooth-success").addClass("ico-valid")
+}
 
 function endpointBluetoothOn(message){
     //Check JSON object for key valid
@@ -39,15 +42,9 @@ function endpointBluetoothOff(message){
 
 function endpointBluetoothConnected(message){
     //Check JSON object for key valid
-    if(message.extensions.connected != null){
-        if(message.extensions.connected == "true"){
-            //Animate the wifi icon
-            $("#bluetooth-connect").addClass("ico-info")
-        }else{
-            $("#bluetooth-connect").removeClass("ico-info")
-            $("#bluetooth-connect").addClass("ico-std")
-        }
-    }
+    $("#bluetooth-connect").removeClass("ico-std")
+    $("#bluetooth-connect").addClass("ico-info")
+
 }
 
 var bluetoothIntervalID = null
@@ -88,6 +85,7 @@ function endpointDom(message){
 
 function endpointError(message){
     console.log(message)
+    $("bluetooth-disconnect").addClass("ico-err")
 }
 
 function endpointRecieveFrame(message){

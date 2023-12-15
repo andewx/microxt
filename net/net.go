@@ -3,6 +3,8 @@ package net
 import (
 	"fmt"
 	"net"
+
+	"github.com/andewx/microxt/common"
 )
 
 const APPLICATION_PORT = 9060
@@ -32,6 +34,31 @@ type TCPConnection struct {
 	MyAddr *net.TCPAddr
 	Talker *Talker
 	Status int
+}
+
+type IP struct {
+	IP net.IP
+}
+
+func (ip *IP) String() string {
+	return ip.IP.String()
+}
+
+func (ip *IP) To4() []byte {
+	return ip.IP.To4()
+}
+
+func (ip *IP) To16() []byte {
+	return ip.IP.To16()
+}
+
+func Int32ToIP(in uint32) net.IP {
+	bytes := common.GetBytes32(int(in), common.BIG_ENDIAN)
+	return net.IPv4(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+func ByteToIP(bytes []byte) net.IP {
+	return net.IPv4(bytes[0], bytes[1], bytes[2], bytes[3])
 }
 
 func IPV4Address() *net.TCPAddr {

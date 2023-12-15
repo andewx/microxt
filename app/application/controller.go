@@ -1,179 +1,22 @@
 package application
 
-import (
-	"fmt"
-
-	"github.com/andewx/microxt/app/templates"
-	"github.com/andewx/microxt/net"
-	"github.com/asticode/go-astilectron"
-)
-
-type DomElement struct {
-	HTML     string `json:"html"`
-	Selector string `json:"selector"`
+type Controller interface {
+	Endpoint(name string, params map[string]string, session *Session, app *Application) error
 }
 
-// Responds to a @scaffold request
-func ScaffoldController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@endpoint", session)
-	html := &templates.StringWriter{Str: ""}
-	tmpl := app.GetTemplate(session.state.ActiveView)
+type ControllerBase struct {
+	handles map[string]func(params map[string]string, session *Session, app *Application) error
+}
 
-	if tmpl != nil {
-		tmpl.Execute(session.state, html)
-	} else {
-		fmt.Printf("Failed to find template %s\n", session.state.ActiveView)
+func NewControllerBase() *ControllerBase {
+	return &ControllerBase{handles: make(map[string]func(params map[string]string, session *Session, app *Application) error)}
+}
+
+func (c *ControllerBase) Endpoint(name string, params map[string]string, session *Session, app *Application) error {
+
+	if c.handles[name] != nil {
+		return c.handles[name](params, session, app)
 	}
 
-	req.Extensions["name"] = "@dom"
-	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#root"}}
-
-	//Send session request information to electron
-	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-
-}
-
-func ConnectDeviceController(params map[string]string, session *Session, app Application) {
-	err := app.ConnectDevice(session.UID)
-	req := NewRequest("@error", session)
-	if err != nil {
-		req.Extensions["error"] = "Failed to connect to device"
-		app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-	} else {
-		session.state.ActiveView = "Ide"
-		ScaffoldController(params, session, app)
-	}
-}
-
-// Responds to a @provision request - for this we write the credentials over bluetooth connection
-func ProvisionController(params map[string]string, session *Session, app Application) {
-	ssid := params["ssid"]
-	pass := params["password"]
-	fmt.Printf("Route Parameters %v\n", params)
-	var err error
-
-	fmt.Printf("Provisioning device %s with ssid %s and pass %s\n", session.UID, ssid, pass)
-	err = app.BluetoothSend(ssid, pass, session) //Blocks until connection is established
-
-	if err != nil {
-		req := NewRequest("@error", session)
-		req.Extensions["error"] = "Failed to connect to device"
-		app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-	} else {
-		if app.GetState() == net.BLE_SUCCESS {
-			session.state.ActiveView = "Ide"
-			ScaffoldController(params, session, app)
-		}
-	}
-}
-
-func ProvisionCancelController(params map[string]string, session *Session, app Application) {
-	app.BluetoothCancel()
-}
-
-// Responds to a @session request - this should establish a new session with the electron caller
-func SessionController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@session", session)
-	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-}
-
-// Responds to a @devicepanel request
-func DevicePanelController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@dom", session)
-	html := &templates.StringWriter{Str: ""}
-	tmpl := app.GetTemplate("Devices")
-
-	if tmpl != nil {
-		tmpl.Execute(session.state, html)
-	} else {
-		fmt.Printf("Failed to find template %s\n", session.state.ActiveView)
-	}
-
-	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
-
-	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-
-}
-
-// Responds to a @navtabs request
-func NavTabsController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@dom", session)
-	html := &templates.StringWriter{Str: ""}
-	tmpl := app.GetTemplate("Nav")
-
-	if tmpl != nil {
-		tmpl.Execute(session.state, html)
-	} else {
-		fmt.Printf("Failed to find template %s\n", session.state.ActiveView)
-	}
-
-	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
-
-	//Send session request information to electron
-	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-
-}
-
-// Responds to a @terminaldisplay request
-func TerminalDisplayController(params map[string]string, session *Session, app Application) {
-	req := NewRequest("@dom", session)
-	html := &templates.StringWriter{Str: ""}
-	tmpl := app.GetTemplate("Terminal")
-
-	if tmpl != nil {
-		tmpl.Execute(session.state, html)
-	} else {
-		fmt.Printf("Failed to find template %s\n", session.state.ActiveView)
-	}
-
-	req.Extensions["selectors"] = []*DomElement{{HTML: html.Str, Selector: "#left-panel"}}
-
-	//Send session request information to electron
-	app.GetElectron().SendMessage(req.JSON(), func(m *astilectron.EventMessage) {})
-
-}
-
-// Responds to a @terminalinput request
-func TerminalInputController(params map[string]string, session *Session, app Application) {
-	/*
-		req := NewRequest("@dom", session)
-		//Look at terminal command and execute it
-		command_string := params["command"]
-		if command_string != ""{
-			//Execute command
-			cmd := NewCommand(command_string, session)
-			cmd.Execute()
-		}
-
-		return
-	*/
-}
-
-// Responds to a ADC Data Request
-func RadarDataController(params map[string]string, session *Session, app Application) {
-
-	/*var data []byte
-	var err error
-	req := NewRequest("@radardata", session)
-	data_requested := params["type"]
-	if data_requested == "adc" {
-		data, err = json.Marshal(session.state.RadarData.ADCData)
-	} else if data_requested == "fft" {
-		data, err = json.Marshal(session.state.RadarData.FFTData)
-	} else if data_requested == "pdat" {
-		data, err = json.Marshal(session.state.RadarData.PDATData)
-	} else if data_requested == "tdat" {
-		data, err = json.Marshal(session.state.RadarData.TDATData)
-	}
-
-	if err != nil {
-		msg := js.From(req).Begin("data").Set("data", data).End()
-		app.GetElectron().SendMessage(msg, func(m *astilectron.EventMessage) {})
-	} else {
-		req := NewRequest("@error", session)
-		tmp := js.From(req).Begin("error").Set("message", "Failed to marshal radar data").End()
-		app.GetElectron().SendMessage(tmp.Marshal(), func(m *astilectron.EventMessage) {})
-	}
-	*/
-
+	return nil
 }

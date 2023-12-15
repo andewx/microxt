@@ -1,6 +1,8 @@
 package models
 
-import "github.com/andewx/microxt/common"
+import (
+	"github.com/andewx/microxt/common"
+)
 
 type AppConfig struct {
 	//Name of the application and some meta data
@@ -35,34 +37,4 @@ type RadarData struct {
 
 func NewRadarData() *RadarData {
 	return &RadarData{ADCData: NewADCData(), FFTData: NewFFTData(), PDATData: NewPDATData(), TDATData: NewTDATData(), DDATData: NewDDATData()}
-}
-
-type SessionObject struct {
-	FirstName     string      `json:"firstname"`
-	LastName      string      `json:"lastname"`
-	Email         string      `json:"email"`
-	UserID        int64       `json:"userid"`
-	ActiveView    string      `json:"activeview"`
-	ActiveToolbar string      `json:"activetoolbar"`
-	ActiveDevice  string      `json:"activedevice"`
-	ActiveNav     string      `json:"activenav"`
-	Terminal      string      `json:"terminal"`
-	ParamsRadar   RadarParams `json:"paramsradar"`
-	RadarData     *RadarData  `json:"radardata"`
-	Devices       []*Device   `json:"devices"`
-	//private
-	logging *Logging
-}
-
-func NewSessionObject() *SessionObject {
-	return &SessionObject{ActiveView: "Provision", ActiveToolbar: "config", ActiveDevice: "none", FirstName: "DieselX", LastName: "User", ActiveNav: "config", Terminal: "shell", ParamsRadar: RadarParams{}, RadarData: NewRadarData(), Devices: make([]*Device, 0), logging: NewLogging()}
-}
-
-type Device struct {
-	ID     int64  `json:"deviceid"`
-	Name   string `json:"devicename"`
-	IP     string `json:"deviceip"`
-	Port   int    `json:"deviceport"`
-	Driver string `json:"devicedriver"`
-	Status int    `json:"devicestatus"`
 }

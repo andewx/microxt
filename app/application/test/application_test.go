@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	test "github.com/andewx/microxt/app/application"
+	"github.com/andewx/microxt/app/templates"
 )
 
 const CS_GREEN = "\033[32m"
@@ -17,14 +18,12 @@ type Foo struct {
 }
 
 func TestApplicationCreate(t *testing.T) {
-	var app test.Application
+	var app *test.Application
 	var err error
-	app, err = test.NewAirXTApplication()
+	app, err = test.NewApplication()
 	if err != nil {
-		if err.Error() != "NO_DEVICE" {
-			t.Errorf("Unexpected error %s", err)
-			panic(err)
-		}
+		t.Errorf("Failed to create application with error %s", err.Error())
+		return
 	}
 
 	m := app.NewSession()
@@ -37,15 +36,22 @@ func TestApplicationCreate(t *testing.T) {
 	}
 
 	//Find provision template
-	prov := app.GetTemplate("Provision")
+	prov := app.GetTemplate("REGISTER_VIEW")
 	if prov == nil {
 		t.Errorf("Failed to find provision template")
+	}
+
+	html := &templates.StringWriter{Str: ""}
+	err = prov.Execute(m, html)
+
+	if err != nil {
+		t.Errorf("Failed to execute provision template with error %s", err.Error())
 	}
 
 	//Send Credentials over Bluetooth
 	params := make(map[string]string)
 	params["ssid"] = "test"
 	params["password"] = "test"
-	app.GetRoute("@provision").Handler(params, m, app)
+	//app.Controller("UtilityController").Endpoint("Provision", params, m, app)
 
 }

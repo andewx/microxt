@@ -1,0 +1,32 @@
+<div class="centered-div molten-bg">
+        <div class="centered-content max-width-med">
+            <div class="flex-item justify-center">
+                <h1 class="marg-light align-content-center">Looks like you're new here</h1>
+                <div class="caption align-content-center marg-heavy">
+                    We will get you connected we just need a few details
+                </div>
+                <form hx-post="/provision" hx-target="#form-submit-feedback" hx-swap="outerHTML">
+                    <div class="grid">
+                        <label for="first" class="form-row-label align-content-center">First Name</label>
+                        <input id="first" type="text" class="validate form-row-input marg-heavy"></input>
+                        <label class="form-row-label align-content-center" for="last">Last Name</label>
+                        <input id="last" type="text" class="validate form-row-input marg-heavy"></input>
+                        <label class="form-row-label align-content-center" for="email">Email</label>
+                        <input id="email" type="email" class="validate form-row-input marg-heavy"></input>
+                        <label class="form-row-label align-content-center" for="password">Password</label>
+                        <input id="password" type="password" class="validate form-row-input marg-heavy"></input>
+                    </div>
+                    <div class="align-content-center">
+                        <div class="flex-row-center">
+                            <div class="flex-row marg-heavy compress-extreme">
+                                <input type="submit" bluejs="userSubmit" bluejs-trigger="click" bluejs-binding="userSubmit" class="flex-item btn-primary small-text" value="Submit">
+                                <input type="submit" bluejs="userCancel" bluejs-trigger="click" bluejs-binding="userCancel" class="flex-item btn-danger small-text" value="Cancel">
+                                <div class="flex-item hidden validate-feedback"><span class="ico ico-valid" alt="Submitted">&#xe86c;</span></div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

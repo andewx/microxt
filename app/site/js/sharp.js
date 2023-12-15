@@ -28,8 +28,9 @@ class Session{
         }
     }
 
-    request(route, paramaters){
+    request(controllerKey, route, paramaters){
         var msg = {
+            controller: controllerKey,
             routekey:route,
             sessionkey:this.get("uid"),
             params:paramaters, //map[string]string
@@ -74,8 +75,8 @@ class Sharp{
         }
     }
 
-    request(route, paramaters){
-        return this.session.request(route, paramaters)
+    request(controllerKey,route, paramaters){
+        return this.session.request(controllerKey,route, paramaters)
     }
 
 

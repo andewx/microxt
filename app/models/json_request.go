@@ -6,6 +6,7 @@ import (
 )
 
 type JsonRequest struct {
+	Controller string            `json:"controller"`
 	RouteKey   string            `json:"routekey"`
 	SessionKey string            `json:"sessionkey"`
 	Paramaters map[string]string `json:"params"`

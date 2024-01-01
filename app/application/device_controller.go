@@ -8,6 +8,7 @@ import (
 
 	"github.com/andewx/microxt/app/models"
 	"github.com/andewx/microxt/common"
+	"github.com/andewx/microxt/net"
 	"github.com/asticode/go-astilectron"
 )
 
@@ -59,6 +60,43 @@ func (p *DeviceController) SaveDevices(app *Application) error {
 		fmt.Printf("Failed to marshal user %s\n", err.Error())
 	}
 	return err
+}
+
+func (p *DeviceController) GetProfile(app *Application) {
+	device := app.ActiveDevice
+	if device != nil {
+		if device.GetTalker() != nil {
+			msg_id := common.RandUint32()
+			device.GetTalker().SendGetProfile(msg_id)
+			m := make(chan int)
+			go device.GetTalker().Listen(m, msg_id, device.GetTalker().RecieveDeviceProfile)
+			select {
+			case msg := <-m:
+				if msg == net.GPR_ERROR {
+					fmt.Printf("%sError%s, failed to parse message from device: %v\n", net.CS_RED, net.CS_WHITE, "Ack not recieved")
+					m <- net.KILL
+				} else if msg == net.GPR_RECIEVE {
+					//check that our message_id matches.
+					m <- net.KILL
+				}
+			}
+		}
+	}
+
+	//Fill the device profile details
+	device.MaxVel = int64(device.GetTalker().Remote.DeviceProfile.MaxVel)
+	//...everything else
+}
+
+func (p *DeviceController) DeviceReady(app *Application) {
+	device := app.ActiveDevice
+	if device != nil {
+		if device.IsReady() {
+			fmt.Printf("Device is ready\n")
+		} else {
+			fmt.Printf("Device is not ready\n")
+		}
+	}
 }
 
 func (p *DeviceController) GetDevices(params map[string]string, session *Session, app *Application) error {

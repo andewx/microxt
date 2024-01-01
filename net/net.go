@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/andewx/microxt/common"
+	"google.golang.org/protobuf/proto"
 )
 
 const APPLICATION_PORT = 9060
@@ -25,6 +26,8 @@ const (
 	DEVICE_SCANNING
 	DEVICE_ON
 	DEVICE_DISCONNECTED
+	KILL
+	CONTINUE
 )
 
 // TCPConnection is a struct that contains the TCP connection, address, and message
@@ -50,6 +53,10 @@ func (ip *IP) To4() []byte {
 
 func (ip *IP) To16() []byte {
 	return ip.IP.To16()
+}
+
+func GenMessageID() uint32 {
+	return common.RandUint32()
 }
 
 func Int32ToIP(in uint32) net.IP {
@@ -105,7 +112,7 @@ func IPV4Address() *net.TCPAddr {
 func NewTCPConnection(addressport string) (*TCPConnection, error) {
 	// Create New TCP Connection
 	TCPConnection := new(TCPConnection)
-	TCPConnection.Talker = NewTalker()
+	TCPConnection.Talker = NewTalker(TCPConnection)
 	TCPConnection.Status = HANDSHAKE
 
 	//UDP Connection For Broadcast to obtain device IP before we switch over to TCP communication
@@ -137,14 +144,13 @@ func (u *TCPConnection) Close() {
 	u.Conn.Close()
 }
 
-func (u *TCPConnection) Listen(status chan int) {
+func (u *TCPConnection) Listen(status chan int, message_id uint32, buffer_size int, proto_handler func([]byte, uint32) (proto.Message, error)) {
 	finished := false
-	buffer := make([]byte, 1024*4)
-	u.Talker.LocalStatus = IDLE
-	u.Talker.DeviceStatus = IDLE
-	u.Talker.ConversationID = "0"
-	u.Talker.Inbox = Messages{}
+	buffer := make([]byte, buffer_size)
 	fmt.Printf("%sListening%s for TCP messages...\n", CS_YELLOW, CS_WHITE)
+
+	//setup timeout for successful read
+
 	for !finished {
 		// Read from the TCP connection
 		_, err := u.Conn.Read(buffer)
@@ -155,17 +161,20 @@ func (u *TCPConnection) Listen(status chan int) {
 				fmt.Printf("Error reading from TCP connection: %v\n", err)
 			}
 		} else {
-			// Print the TCP message
-			fmt.Printf("%sReceived TCP broadcast: %s\n", CS_GREEN, buffer[:len(buffer)-1])
-			err = u.Talker.Receive(buffer)
-
+			_, err = proto_handler(buffer, message_id)
 			if err != nil {
+				status <- GPR_ERROR
 				fmt.Printf("%sError%s, failed to parse message from device: %v\n", CS_RED, CS_WHITE, err)
 			} else {
-				fmt.Printf("%sMessage%s, parsed message from device:\n", CS_GREEN, CS_WHITE)
+				status <- GPR_RECIEVE
 			}
-			//Interrogate and route commands etc , handle the protobuf message here
 		}
+	}
+
+	msg := <-status
+
+	if msg == KILL {
+		finished = true
 	}
 }
 

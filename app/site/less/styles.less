@@ -1,19 +1,18 @@
 
 @matte-grey: #343633ff;
-@night: #161513ff;
+@night: #121110ff;
 @matte: #1f1f23;
 @panel:#1c1c1c;
 @divider:#2a2a2b;
-@light: #f4f3eeff;
-@white:#ffffffff;
+@light: rgb(213, 211, 211);
+@white:rgb(215, 215, 215);
 @accent-1: #db5461ff;
 @accent-2: #a63446ff;
-@grey: #202020ff;
 @light-grey: rgb(151, 151, 151);
 @stoplight-yellow:#fdB024;
 @green: #2bc131;
 @red: #fb4546;
-@blue: #2962b9;
+@blue: #138eeb;
 @yellow: #f9d423;
 @green: #29c131;
 @link-color: @blue;
@@ -54,7 +53,23 @@
 
 @font-face{
     font-family: 'BLMelodyRegular';
-    src: url('../fonts/Melody/BLMelody-Light.woff2') format('woff2');
+    src: url('../fonts/Melody/BLMelodyMono-Regular.otf') format('opentype');
+}
+
+@font-face{
+    font-family: 'BLMelodyLight';
+    src: url('../fonts/Melody/BLMelodyMono-Light.otf') format('opentype');
+}
+
+@font-face{
+    font-family: 'BLMelodyExtraLight';
+    src: url('../fonts/Melody/BLMelodyMono-ExtraLight.otf') format('opentype');
+}
+
+
+@font-face{
+    font-family: 'BLMelodyBold';
+    src: url('../fonts/Melody/BLMelodyMono-Bold.otf') format('opentype');
 }
 
 
@@ -74,15 +89,21 @@
 
 //We want to fix the container to the page size
 html, body{
-    font-family: 'BLMelodyRegular', sans-serif;
+    font-family: 'BLMelodyRegular';
     height:100%;
     width:100%;
     margin:0;
     padding:0;
     overflow:hidden;
-    background-color:@matte;
+    background-color:@night;
     color:@light;
 }
+
+.background-grid {
+    background-image: linear-gradient(#1b1d1f 0.5px, transparent 0.5px, transparent calc(100% - 0.5px), #1b1d1f calc(100% - 0.5px)), linear-gradient(90deg, #1b1d1f 0.5px, transparent 0.5px, transparent calc(100% - 0.5px), #1b1d1f calc(100% - 0.5px));
+    background-size: 3.3333333333333335% 4%;
+    border: 0.5px solid #1b1d1f;
+  }
 
 
 //Text Styles
@@ -151,6 +172,12 @@ p{
     padding: 0;
 }
 
+canvas{
+    width:100%;
+    height:100%;
+    margin:0;
+}
+
 
 .small-text{
     font-size:0.8em;
@@ -180,6 +207,292 @@ p{
 }
 
 
+//----- Ide Main Page Panels and windows
+.screen{
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:0;
+    top:0;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    background-color:rgba(0,0,0,0);
+    color:@light;
+}
+
+.layout-column-flex{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+    height:100%;
+    width: 100%;
+}
+
+.properties-flex{
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+    height:100%;
+    font-family:'BLMelodyRegular';
+
+    .properties-items{
+    flex: 0 5 auto;
+    font-size:1.0em;
+    }
+
+    .item-group{
+        padding: 10px;
+        margin: 20px;
+        font-size: 1.3em;
+    }
+
+    .name{
+        display:inline-block;
+    }
+
+    .value{
+        display:inline-block;
+    }
+
+    .item{
+        padding: 2px;
+        margin: 2px;
+        font-size: 0.9em;
+    }
+
+    .properties{
+    padding: 2px;
+    margin: 10px;
+    font-size: 0.8em;
+    color:@light-grey;
+    }
+
+    .property{
+        margin: 5px;
+        font-size: 0.9em;
+        color:@light-grey;
+
+        .name{
+            font-weight:bold;
+        }
+
+        .value{
+            font-weight:lighter;
+        }
+    }
+
+    .properties-footer{
+        margin-top:auto;
+        margin-left:10px;
+        margin-bottom:10px;
+        font-size:1.3em;
+        padding:10px;
+        font-family:'BLMelodyBold';
+    }
+}
+
+
+
+
+.content-flex{
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+    flex-grow:5;
+
+    .nav{
+        display:flex;
+        flex-direction:row;
+        flex-wrap:nowrap;
+        justify-content:space-between;
+        align-items:stretch;
+        flex-grow:1;
+        color:@light;
+        font-family:'BLMelodyBold';
+        padding:10px;
+        margin:10px;
+        font-size:0.8em;
+        color:@light;
+        height:20px;
+
+        .item{
+            padding: 10px;
+            margin: 10px;
+            font-size: 1.3em;
+            flex: 0 1 auto;
+            cursor: pointer;
+        }
+        .item:hover{
+            color:lighten(@light, 90%);
+        }
+
+        .underscore{
+            margin-top:10px;
+            margin-left:auto;
+            margin-right:auto;
+            margin-bottom:10px;
+            width:80%;
+            height:10px;
+            background:@matte;
+            border-radius:10px;
+            border-color:@light;
+            border-width:1px;
+            border:solid;
+        }
+    }
+
+    .title{
+        font-family:'BLMelodyExtraLight';
+        font-size:6.0em;
+        margin-top:20px;
+        color:@light-grey;
+        opacity:0.5;
+        flex-grow:5;
+    }
+
+    .telemetry{
+        display:flex;
+        flex-direction:row;
+        margin-top:auto;
+        margin-bottom:20px;
+        font-family:'BLMelodyRegular';
+        font-size:1.2em;
+        color:@light;
+
+        .item-group{
+            padding: 10px;
+            margin-top:auto;
+            margin-bottom:20px;
+            font-size: 0.9em;
+            .item{
+                margin: 5px;
+                font-size: 0.9em;
+                color:@light-grey;
+                flex: 0 1 auto;
+                cursor: pointer;
+            }
+        }
+
+        .telemetry-canvas{
+            margin-top:auto;
+            margin-bottom:20px;
+            margin-left:auto;
+            margin-right:auto;
+            height:350px;
+            width:500px;
+        }
+
+        .telemetry-gutter{
+            margin:10px;
+            flex-grow:1;
+        }
+       
+    }
+}
+
+
+.options-flex{
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:space-between;
+    align-items:stretch;
+    flex-grow:1;
+
+    .settings{
+        margin:10px auto 10px auto;
+        display:flex;
+        width:20%;
+        font-size:1.4em;
+        flex-direction:row;
+        flex-wrap:nowrap;
+        justify-content:space-between;
+        align-items:stretch;
+
+        .item{
+            padding: 10px;
+            margin: 10px;
+            font-size: 1.3em;
+            flex: 0 1 auto;
+            cursor: pointer;
+        }
+    }
+
+    .configure{
+        margin:10px;
+        flex-grow:2;
+        font-family:'BLMelodyLight';
+
+        .item-group{
+            padding: 10px;
+            margin: 10px;
+            font-size: 1.0em;
+        }
+
+        .item{
+            padding: 10px;
+            margin: 10px;
+            font-size: 0.9em;
+            flex: 0 1 auto;
+            cursor: pointer;
+        }
+
+        .item:hover{
+            background-color:@light-grey;
+            color: @night;
+        }
+
+        .selected{
+            background-color:@light-grey;
+            color: @night;
+        }
+    }
+
+    .stream-settings{
+        margin-top:auto;
+        margin-right:50px;
+        margin-left:auto;
+        font-family:'BLMelodyRegular';
+        font-size:1.3em;
+        .item{
+            font-size:1.5em;
+            padding: 10px;
+            margin: 10px;
+            font-size: 0.9em;
+            flex: 0 1 auto;
+            cursor: pointer;
+        }
+
+        .stream-flex{
+            display:flex;
+            flex-direction:row;
+            flex-wrap:nowrap;
+            justify-content:space-between;
+            align-items:stretch;
+            flex-grow:1;
+            width:20%;
+
+            .item{
+                padding: 10px;
+                margin: 10px;
+                font-size: 1.3em;
+                flex: 0 1 auto;
+                cursor: pointer;
+            }
+        }
+    }
+
+
+}
+
+
 
 //Icon Additives use .material-icons-sharp class and 'Material Icons Sharp' for font usage
 
@@ -187,7 +500,6 @@ p{
 font-family: 'Icons';
 font-weight: normal;
 font-style: normal;
-font-size: 24px;
 line-height: 1;
 letter-spacing: normal;
 text-transform: none;
@@ -198,6 +510,10 @@ direction: ltr;
 -moz-font-feature-settings: 'liga';
 -moz-osx-font-smoothing: grayscale;
 cursor:pointer;
+}
+
+.ico:hover{
+    color:lighten(@light, 90%);
 }
   
 .ico-info{

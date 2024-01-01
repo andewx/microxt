@@ -2,6 +2,7 @@ package common
 
 import (
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 )
@@ -45,6 +46,10 @@ const (
 	BIG_ENDIAN = iota
 	LITTLE_ENDIAN
 )
+
+func RandUint32() uint32 {
+	return rand.Uint32()
+}
 
 func Int32(bytes []byte, endianess int) int32 {
 	var n int32

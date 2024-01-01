@@ -1,38 +1,164 @@
-  <!----Nav-->
-<canvas id="canvas">
-<div id="properties" class="floating panel">
-  <div id="device-properties">
-    <div class="item-group">
-    <div class="item-group-name">Device</div>
-     {{range .Devices}}
-       <div class="item">
-        {{.Name}}
-       </div>
-     {{end}}
-    </div>
-  </div>
-<div>
-<div id="info" class="floating panel">
-  <div id="flex-row info-content">
-    <div id="notification"></div>
-    <div id="info-content">Hello {{.Session.FirstName}} {{.Session.LastName}}</div>
-  </div>
-</div>
-<div id="controls" class="floating panel">
-  <div class="flex-row">
-    <div id="timeline">
-      <div id="time" class="tool-item"></div>
-      <div id="play" class="tool-item"></div>
-      <div id="stop" class="tool-item"></div>
-    </div>
-    <div id="tools" class="flex-row">
-      <div id="range" class="tool-item"></div>
-      <div id="vel" class="tool-item"></div>
-      <div id="velmax" class="tool-item"></div>
-    </div>
-  </div>
-<div>
-</canvas>
-<div id="rightclickmenu" class="floating panel">
-  <div id="rightclickmenu-content"></div>
-</div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--Import Google Icon Font-->
+    <!-- https://material.io/resources/icons/?style=sharp -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Sharp" rel="stylesheet">
+
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/styles.css"  media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body class="background-grid" hx-ext="hx-el" hx-trigger="load" hx-swap="innerHTML" hx-target="body" name="@scaffold" id="root">
+    <!----Nav-->
+    <canvas id="canvas"></canvas>
+    <div class="screen">
+      <div class="layout-column-flex">
+        <div class="properties-flex">
+          <div class="properties-items">
+            <div class="item-group">
+              <div class="item">
+              <span class="ico ico-info">&#xe1a7</span> <span class="ico ico-info">&#xe63e</span>  KLD7 AirXT Bluetooth
+                <div class="properties">
+                  <div class="property">
+                    <div class="name">Connection</div>
+                    <div class="value">115200 Mbps</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Protocol</div>
+                    <div class="value">DLX 1.0</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Mode</div>
+                    <div class="value">SEQ</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Tx</div>
+                    <div class="value">24.125 GHZ</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Bandwidth</div>
+                    <div class="value">560MHZ</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Nyquist</div>
+                    <div class="value">1231kHZ</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Last Used</div>
+                    <div class="value">(Active)</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Device Max Range</div>
+                    <div class="value">25m</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Rx</div>
+                    <div class="value">2</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Tx</div>
+                    <div class="value">1</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Device Max Vel</div>
+                    <div class="value">100 kmh</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Device Max Vel</div>
+                    <div class="value">100 kmh</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Network</div>
+                    <div class="value">ObamaPhone</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Address</div>
+                    <div class="value">192.168.131.1</div>
+                  </div>
+                  <div class="property">
+                    <div class="name">Port</div>
+                    <div class="value">8000</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="properties-footer">
+         <div>Manage Devices</div>
+          <span class="ico ico-std">&#xe147</span> <span class="ico ico-std">&#xe5c9</span>
+        </div>
+      </div>
+      <div class="content-flex">
+        <div class="nav">
+          <div class="item">Targets <div class="underscore"></div></div>
+          <div class="item">Velocity</div>
+          <div class="item">ADC</div>
+          <div class="item">FFT</div>
+          <div class="item">Max Vel</div>
+          <div class="item">Radial</div>
+          <div class="item">Flight</div>
+        </div>
+        <div class="title">T2DM</div>
+        <div class="telemetry">
+          <div class="item-group">    
+            <div class="item">Bitrate: 120mbps</div>
+            <div class="item">FPS: 45</div>
+            <div class="item">Targets: 8</div>
+            <div class="item">Max Range: 25m</div>
+            <div class="item">Max Vel: 100kmh</div>
+            <div class="item">Max Acc: 20.0kmh</div>
+            <div class="item">Stream Mode: Single</div>
+          </div>
+          <canvas id="telemetry" class="telemetry-canvas"></canvas>
+        </div>
+      </div>
+      <div class="options-flex">
+        <div class="settings">
+          <div class="item"><span class="ico">&#xe8b8;</span></span></div>
+          <div class="item"><span class="ico">&#xe851;</span></span></div>
+          <div class="item"><span class="ico">&#xef73;</span></span></div>
+        </div>
+        <div class="configure">
+          <div class="item-group">
+            [AIRXT] Advanced settings
+            <div class="item selected">Velocity Predict</div>
+            <div class="item">Velocity Anti-Alias</div>
+            <div class="item">Synthetic Signal Training</div>
+            <div class="item">FMCW Modulation Setting</div>
+            <div class="item">Synthetic Aperture Radar</div>
+          </div>
+        </div>
+        <div class="stream-settings">
+          Device Stream
+          <div class="stream-flex">
+            <div class="item"><span class="ico">&#xe9e9;</span></div>
+            <div class="item"><span class="ico">&#xe037;</span></div>
+            <div class="item"><span class="ico">&#xe034;</span></div>
+            <div class="item"><span class="ico">&#xe044;</span></div>
+          </div>
+        </div>
+      </div>
+    </div>  
+    </div>  
+  </body>
+
+  <!-- Insert this line above script imports  -->
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+  <!-- normal script imports etc  -->
+  <script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="js/sharp.js"></script>
+  <script src= "js/endpoints.js"></script>
+  <script src="js/blue.js"></script>
+  <script src="js/handlers.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/effects.js"></script>
+
+
+  <!-- Insert this line after script imports -->
+  <script>if (window.module) module = window.module;</script>
+
+</html>
